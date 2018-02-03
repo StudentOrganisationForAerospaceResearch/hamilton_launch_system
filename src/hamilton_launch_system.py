@@ -2,8 +2,7 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template, request
-import os
+from flask import Flask, render_template
 
 
 #----------------------------------------------------------------------------#
