@@ -1,0 +1,10 @@
+services:
+  - docker
+
+before_script:
+  - ./dockerize.sh init
+
+script:
+  - ./dockerize.sh lint
+
+language: python
