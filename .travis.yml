@@ -1,10 +1,4 @@
-services:
-  - docker
-
-before_script:
-  - ./dockerize.sh init
-
 script:
-  - ./dockerize.sh lint
+  - go build
 
-language: python
+language: golang
