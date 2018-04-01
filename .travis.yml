@@ -1,4 +1,4 @@
 script:
-  - go build
+  - (cd server && go build)
 
 language: golang
