@@ -1,3 +1,8 @@
+sudo: required
+
+services:
+  - docker
+
 script:
   - (cd server && go build)
   - (cd hamilton_launch_board && ./dockerize.sh init)
