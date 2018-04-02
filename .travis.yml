@@ -4,11 +4,11 @@ services:
   - docker
 
 script:
-  - (cd hamilton_launch_server && ./docker_build.sh init)
-  - (cd hamilton_launch_server && ./docker_build.sh lin)
-  - (cd hamilton_launch_server && ./docker_build.sh osx)
-  - (cd hamilton_launch_server && ./docker_build.sh win)
-  - (cd hamilton_launch_server && ./docker_build.sh rpi)
+  - (cd hamilton_launch_server && ./dockerize.sh init)
+  - (cd hamilton_launch_server && ./dockerize.sh build lin)
+  - (cd hamilton_launch_server && ./dockerize.sh build osx)
+  - (cd hamilton_launch_server && ./dockerize.sh build win)
+  - (cd hamilton_launch_server && ./dockerize.sh build rpi)
   - (cd hamilton_launch_board && ./dockerize.sh init)
   - (cd hamilton_launch_board && ./dockerize.sh install)
   - (cd hamilton_launch_board && ./dockerize.sh run build)

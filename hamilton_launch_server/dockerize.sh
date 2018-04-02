@@ -85,4 +85,5 @@ elif [ "$ACTION" == "build" ]; then
 else
     echo "usage: $0 init "
     echo "       $0 build [ lin | osx | win | rpi ]"
+    exit 1
 fi
