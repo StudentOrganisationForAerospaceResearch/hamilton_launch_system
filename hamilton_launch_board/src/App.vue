@@ -1,18 +1,22 @@
 <template>
   <v-app>
     <v-toolbar>
-      <v-toolbar-side-icon></v-toolbar-side-icon>
-      <v-toolbar-title>Title</v-toolbar-title>
+      <v-toolbar-title>Hamilton Launch Board</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat>Link One</v-btn>
-        <v-btn flat>Link Two</v-btn>
-        <v-btn flat>Link Three</v-btn>
-      </v-toolbar-items>
+      <v-toolbar-title>Student Organization for Aerospace Research</v-toolbar-title>
     </v-toolbar>
-    <transition mode="out-in">
-      <router-view/>
-    </transition>
+    <v-tabs grow fixed-tabs>
+      <v-tab ripple :to="{name:'Overview'}">
+        Overview
+      </v-tab>
+      <v-tab ripple :to="{name:'VideoFeed'}">
+        Video Feed
+      </v-tab>
+      <v-tab ripple :to="{name:'Filling'}">
+        Filling
+      </v-tab>
+    </v-tabs>
+    <router-view></router-view>
   </v-app>
 </template>
 
