@@ -1,11 +1,11 @@
 <template>
-  <v-app>
+  <v-app dark>
     <v-toolbar>
       <v-toolbar-title>Hamilton Launch Board</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-title>Student Organization for Aerospace Research</v-toolbar-title>
     </v-toolbar>
-    <v-tabs grow fixed-tabs>
+    <v-tabs grow fixed-tabs height=70 slider-color="yellow">
       <v-tab ripple :to="{name:'Overview'}">
         Overview
       </v-tab>
