@@ -55,7 +55,7 @@
 <script>
 export default {
   name: 'Overview',
-  data: function() {
+  data: function () {
     return {
       airTemperature: 15.2,
       windSpeed: 14,
