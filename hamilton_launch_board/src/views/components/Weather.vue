@@ -1,6 +1,6 @@
 <template>
   <div class="weather">
-    <h1 class="display-2">Weather</h1>
+    <h1 class="display-1">Weather</h1>
     <div class="weather-content">
       <v-card class="weather-card" raised>
         <v-card-title primary-title>

@@ -1,9 +1,9 @@
 <template>
   <div class="avionics">
-    <h1 class="display-2">Avionics Reporting</h1>
+    <h1 class="display-1">Avionics Reporting</h1>
     <div class="avionics-content">
 
-      <v-card class="avionics-card-above" raised>
+      <v-card class="avionics-card" raised>
         <v-card-title primary-title>
           <h4 class="headline">External Conditions</h4>
         </v-card-title>
@@ -20,7 +20,7 @@
         </v-list>
       </v-card>
 
-      <v-card class="avionics-card-above" raised>
+      <v-card class="avionics-card" raised>
         <v-card-title primary-title>
           <h4 class="headline">Flight Board</h4>
         </v-card-title>
@@ -37,9 +37,7 @@
         </v-list>
       </v-card>
 
-      <inertial-measurement-unit></inertial-measurement-unit>
-
-      <v-card class="avionics-card-below" raised>
+      <v-card class="avionics-card" raised>
         <v-card-title primary-title>
           <h4 class="headline">GPS</h4>
         </v-card-title>
@@ -64,6 +62,7 @@
         </v-list>
       </v-card>
 
+      <inertial-measurement-unit></inertial-measurement-unit>
     </div>
   </div>
 </template>
@@ -105,7 +104,7 @@ export default {
 <style scoped>
 
 .avionics {
-  max-width: 1200px;
+  max-width: 1500px;
   margin: auto;
   margin-top: 2em;
 }
@@ -120,13 +119,8 @@ export default {
   flex-wrap: wrap;
 }
 
-.avionics-card-above {
+.avionics-card {
   width: 30em;
-  margin: 9px;
-}
-
-.avionics-card-below {
-  width: 40em;
   margin: 9px;
 }
 
