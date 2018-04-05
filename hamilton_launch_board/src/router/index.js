@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import Router from 'vue-router'
-import Overview from '@/pages/Overview'
-import VideoFeed from '@/pages/VideoFeed'
-import Filling from '@/pages/Filling'
+import Overview from '@/views/pages/Overview'
+import VideoFeed from '@/views/pages/VideoFeed'
+import Filling from '@/views/pages/Filling'
 
 Vue.use(Router)
 Vue.use(Vuetify)

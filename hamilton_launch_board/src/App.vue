@@ -5,7 +5,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-title>Student Organization for Aerospace Research</v-toolbar-title>
     </v-toolbar>
-    <v-tabs grow fixed-tabs height=70 slider-color="yellow">
+    <v-tabs fixed-tabs height=70 slider-color="yellow">
       <v-tab ripple :to="{name:'Overview'}">
         Overview
       </v-tab>
