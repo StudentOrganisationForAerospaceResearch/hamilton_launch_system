@@ -4,27 +4,27 @@
     <div class="weather-content">
       <v-card class="weather-card" raised>
         <v-card-title primary-title>
-          <h3 class="headline mb-0">Air Temperature</h3>
+          <h3 class="headline">Air Temperature</h3>
         </v-card-title>
         <!-- <v-icon>mdi-thermometer-lines</v-icon> -->
         <v-card-text class="weather-card-content display-1">
           <thermometer-lines-icon class="weather-icon" />
-          <p>{{ airTemperature }}°C</p>
+          <p>{{ airTemperature }} °C</p>
         </v-card-text>
       </v-card>
       <v-card class="weather-card" raised>
         <v-card-title primary-title>
-          <h3 class="headline mb-0">Wind Speed</h3>
+          <h3 class="headline">Wind Speed</h3>
         </v-card-title>
         <!-- <v-icon>mdi-weather-windy</v-icon> -->
         <v-card-text class="weather-card-content display-1">
           <weather-windy-icon class="weather-icon" />
-          <p>{{ windSpeed }}km/h</p>
+          <p>{{ windSpeed }} km/h</p>
         </v-card-text>
       </v-card>
       <v-card class="weather-card" raised>
         <v-card-title primary-title>
-          <h3 class="headline mb-0">Wind Direction</h3>
+          <h3 class="headline">Wind Direction</h3>
         </v-card-title>
         <!-- <v-icon>mdi-sign-direction</v-icon> -->
         <v-card-text class="weather-card-content display-1">
@@ -34,7 +34,7 @@
       </v-card>
       <v-card class="weather-card" raised>
         <v-card-title primary-title>
-          <h3 class="headline mb-0">Relative Humidity</h3>
+          <h3 class="headline">Relative Humidity</h3>
         </v-card-title>
         <!-- <v-icon>mdi-water</v-icon> -->
         <v-card-text class="weather-card-content display-1">
@@ -83,6 +83,7 @@ export default {
 .weather {
   max-width: 1200px;
   margin: auto;
+  margin-top: 2em;
 }
 
 .weather h1 {

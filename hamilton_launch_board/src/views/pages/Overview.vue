@@ -3,6 +3,7 @@
     <v-layout>
       <v-flex>
         <weather></weather>
+        <avionics></avionics>
       </v-flex>
     </v-layout>
   </v-container>
@@ -11,11 +12,13 @@
 <script>
 
 import Weather from '@/views/components/Weather'
+import Avionics from '@/views/components/Avionics'
 
 export default {
   name: 'Overview',
   components: {
-    Weather
+    Weather,
+    Avionics
   },
   data: function () {
     return {
