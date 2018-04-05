@@ -60,18 +60,23 @@ export default {
     SignDirectionIcon,
     WaterIcon
   },
-  computed: {
-    airTemperature () {
-      return 15.2
-    },
-    windSpeed () {
-      return 22
-    },
-    windDirection () {
-      return 264
-    },
-    relativeHumidity () {
-      return 78
+  mounted () {
+    setInterval(this.updateData, 100)
+  },
+  data () {
+    return {
+      airTemperature: 0,
+      windSpeed: 0,
+      windDirection: 0,
+      relativeHumidity: 0
+    }
+  },
+  methods: {
+    updateData () {
+      this.airTemperature = 13.04
+      this.windSpeed = 75.38
+      this.windDirection = 96.46
+      this.relativeHumidity = 41.15
     }
   }
 }
