@@ -83,7 +83,7 @@ export default {
 .weather {
   max-width: 1200px;
   margin: auto;
-  margin-top: 2em;
+  margin-top: 1em;
 }
 
 .weather h1 {

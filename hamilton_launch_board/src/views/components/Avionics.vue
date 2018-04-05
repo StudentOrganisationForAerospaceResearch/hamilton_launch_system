@@ -106,7 +106,7 @@ export default {
 .avionics {
   max-width: 1500px;
   margin: auto;
-  margin-top: 2em;
+  margin-top: 1em;
 }
 
 .avionics h1 {
