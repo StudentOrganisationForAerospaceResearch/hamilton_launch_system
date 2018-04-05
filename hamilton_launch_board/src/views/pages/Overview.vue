@@ -3,7 +3,7 @@
     <v-layout>
       <v-flex>
         <div class="weather">
-          <h1>Weather</h1>
+          <h1 class="display-2">Weather</h1>
           <div class="weather-content">
             <v-card class="weather-card" raised>
               <v-card-title primary-title>
@@ -68,6 +68,16 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.weather {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.weather h1 {
+  margin: 9px;
+}
+
 .weather-content {
   display: flex;
   flex-direction: row;
