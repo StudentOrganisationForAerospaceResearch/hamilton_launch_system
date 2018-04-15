@@ -11,11 +11,11 @@
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="subheading">Pressure</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ externalPressure }} Pa</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ externalPressure }} Pa</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Temperature</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ externalTemperature }} °C</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ externalTemperature }} °C</v-list-tile-content>
           </v-list-tile>
         </v-list>
       </v-card>
@@ -28,11 +28,11 @@
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="subheading">Flight Phase</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ flightPhase }}</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ flightPhase }}</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Temperature</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ boardTemperature }} °C</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ boardTemperature }} °C</v-list-tile-content>
           </v-list-tile>
         </v-list>
       </v-card>
@@ -45,19 +45,19 @@
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="subheading">Time</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ gps.time }}</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ gps.time }}</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Altitude</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ gps.altitude }} m</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ gps.altitude }} m</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Latitude</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ gps.latitude }}°</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ gps.latitude }}°</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Longitude</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading"> {{ gps.longitude }}°</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ gps.longitude }}°</v-list-tile-content>
           </v-list-tile>
         </v-list>
       </v-card>
@@ -75,26 +75,33 @@ export default {
   components: {
     InertialMeasurementUnit
   },
-  computed: {
-    externalPressure () {
-      return 15.2
-    },
-    externalTemperature () {
-      return 22
-    },
-    flightPhase () {
-      return 'PRELAUNCH'
-    },
-    boardTemperature () {
-      return 264
-    },
-    gps () {
-      return {
-        time: 'Thu, 05 Apr 2018 08:27:13 GMT',
-        altitude: 2345,
-        latitude: 936.42,
-        longitude: 1249.2
+  mounted () {
+    setInterval(this.updateData, 100)
+  },
+  data () {
+    return {
+      externalPressure: 0,
+      externalTemperature: 0,
+      flightPhase: '',
+      boardTemperature: 0,
+      gps: {
+        time: '',
+        altitude: 0,
+        latitude: 0,
+        longitude: 0
       }
+    }
+  },
+  methods: {
+    updateData () {
+      this.externalPressure = 100
+      this.externalTemperature = 100
+      this.flightPhase = 100
+      this.boardTemperature = 100
+      this.gps.time = 100
+      this.gps.altitude = 100
+      this.gps.latitude = 100
+      this.gps.longitude = 100
     }
   }
 }

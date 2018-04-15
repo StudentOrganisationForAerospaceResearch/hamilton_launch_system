@@ -89,27 +89,39 @@
 
 export default {
   name: 'InertialMeasurementUnit',
-  computed: {
-    accelerometer () {
-      return {
-        x: 13.04,
-        y: 75.38,
-        z: 96.46
+  mounted () {
+    setInterval(this.updateData, 100)
+  },
+  data () {
+    return {
+      accelerometer: {
+        x: 0,
+        y: 0,
+        z: 0
+      },
+      gyroscope: {
+        x: 0,
+        y: 0,
+        z: 0
+      },
+      magnetometer: {
+        x: 0,
+        y: 0,
+        z: 0
       }
-    },
-    gyroscope () {
-      return {
-        x: 41.15,
-        y: 8.05,
-        z: 40.37
-      }
-    },
-    magnetometer () {
-      return {
-        x: 26.62,
-        y: 0.22,
-        z: 73.24
-      }
+    }
+  },
+  methods: {
+    updateData () {
+      this.accelerometer.x = 13.04
+      this.accelerometer.y = 75.38
+      this.accelerometer.z = 96.46
+      this.gyroscope.x = 41.15
+      this.gyroscope.y = 8.05
+      this.gyroscope.z = 40.37
+      this.magnetometer.x = 26.62
+      this.magnetometer.y = 0.22
+      this.magnetometer.z = 73.24
     }
   }
 }

@@ -61,7 +61,6 @@ export default {
     SignDirectionIcon,
     WaterIcon
   },
-
   computed: {
     ...mapState({
       airTemperature: state => state.weather.airTemperature,

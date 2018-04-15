@@ -9,7 +9,7 @@ if [ "$1" == "init" ]; then
 elif [ "$1" == "install" ]; then
     docker run --rm \
         --volume "$DIR:$DOCKER_HOME" \
-        $IMAGE_NAME yarn install --frozen-lockfile
+        $IMAGE_NAME yarn add moment
 elif [ "$1" == "start" ]; then
     docker run --rm \
         --volume "$DIR:$DOCKER_HOME" \
