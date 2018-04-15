@@ -2,88 +2,62 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
-	"path"
-	"path/filepath"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/gorilla/websocket"
 )
 
-func absPath(relativePath string) string {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	check(err, true)
-	result := path.Join(dir, relativePath)
-	return result
+type Weather struct {
+	AirTemperature   float64 `json:"airTemperature"`
+	WindSpeed        float64 `json:"windSpeed"`
+	WindDirection    float64 `json:"windDirection"`
+	RelativeHumidity float64 `json:"relativeHumidity"`
 }
 
-func check(err error, exit bool) {
-	if exit {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Fprintf(os.Stderr, "%v", r)
-				os.Exit(1)
-			}
-		}()
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-		}
+var (
+	upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
-}
+)
 
-func genericPageHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("URL was ", r.URL)
-	var t *template.Template
-	if r.URL.String() == "/" {
-		t = template.Must(template.ParseFiles(
-			absPath("templates/base.html"),
-			absPath("templates/pages/home.html")))
-	} else {
-		page := absPath("templates/pages/" + r.URL.String() + ".html")
-		if _, err := os.Stat(page); os.IsNotExist(err) {
-			// page does not exist
-			page = "templates/pages/404.html"
-		}
-		t = template.Must(template.ParseFiles(
-			absPath("templates/base.html"), page))
-	}
-	err := t.ExecuteTemplate(w, "base", nil)
-	check(err, true)
-}
+func setUpExitSignals() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c,
+		syscall.SIGINT,  // terminal interrupt (ctrl-c)
+		syscall.SIGQUIT, // terminal quit (ctrl-\)
+		syscall.SIGTERM, // termination
+	)
 
-func apiHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/api" {
-		http.NotFound(w, r)
-		return
-	}
-}
+	fmt.Println("Listening for exit signals...")
 
-func faviconHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, absPath("resources/images/favicon.ico"))
-}
-
-func cache(h http.Handler) http.Handler {
-	var cacheHeaders = map[string]string{
-		"Cache-Control": "public, max-age=2592000",
-	}
-
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		for k, v := range cacheHeaders {
-			w.Header().Set(k, v)
-		}
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
+	go func() {
+		signal := <-c
+		fmt.Println("Got interrupt signal:", signal)
+		fmt.Println("Shutting down Hamilton Launch Server...")
+		os.Exit(0)
+	}()
 }
 
 func main() {
-	http.HandleFunc("/", genericPageHandler)
-	http.HandleFunc("/api", apiHandler)
-	http.Handle("/resources/", cache(http.StripPrefix("/resources/", http.FileServer(http.Dir(absPath("resources"))))))
-	http.HandleFunc("/favicon.ico", faviconHandler)
+	var connections []*websocket.Conn
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		connections = append(connections, conn)
+		fmt.Println("New client connected")
+	})
 
 	port := "8000"
 
@@ -93,6 +67,30 @@ func main() {
 
 	fmt.Println("Listening on port:", port)
 
+	tick := time.NewTicker(time.Second)
+
+	go func() {
+		counter := 0.1
+		for {
+			counter += 0.1
+			for _, conn := range connections {
+				conn.WriteJSON(Weather{
+					AirTemperature:   counter,
+					WindSpeed:        counter * 2,
+					WindDirection:    counter * 3,
+					RelativeHumidity: counter * 4,
+				})
+			}
+			<-tick.C // Block until next cycle
+		}
+	}()
+
+	setUpExitSignals()
+
 	err := http.ListenAndServe(":"+port, nil)
-	check(err, true)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 }

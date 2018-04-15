@@ -51,6 +51,7 @@ import ThermometerLinesIcon from 'vue-material-design-icons/thermometer-lines.vu
 import WeatherWindyIcon from 'vue-material-design-icons/weather-windy.vue'
 import SignDirectionIcon from 'vue-material-design-icons/sign-direction.vue'
 import WaterIcon from 'vue-material-design-icons/water.vue'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Weather',
@@ -60,19 +61,14 @@ export default {
     SignDirectionIcon,
     WaterIcon
   },
+
   computed: {
-    airTemperature () {
-      return 15.2
-    },
-    windSpeed () {
-      return 22
-    },
-    windDirection () {
-      return 264
-    },
-    relativeHumidity () {
-      return 78
-    }
+    ...mapState({
+      airTemperature: state => state.weather.airTemperature,
+      windSpeed: state => state.weather.windSpeed,
+      windDirection: state => state.weather.windDirection,
+      relativeHumidity: state => state.weather.relativeHumidity
+    })
   }
 }
 </script>
