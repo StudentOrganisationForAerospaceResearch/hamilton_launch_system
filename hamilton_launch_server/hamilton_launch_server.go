@@ -1,14 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"gopkg.in/yaml.v2"
 )
 
 type Weather struct {
@@ -16,6 +20,11 @@ type Weather struct {
 	WindSpeed        float64 `json:"windSpeed"`
 	WindDirection    float64 `json:"windDirection"`
 	RelativeHumidity float64 `json:"relativeHumidity"`
+}
+
+type Config struct {
+	UpdateInterval string `yaml:"update_interval"`
+	Port           int    `yaml:"port"`
 }
 
 var (
@@ -28,6 +37,21 @@ var (
 	}
 )
 
+func loadConfig() (Config, error) {
+	configFilename := "config.yml"
+	configFile, err := ioutil.ReadFile(filepath.Join(filepath.Dir(os.Args[0]), configFilename))
+	if err != nil {
+		return Config{}, err
+	}
+	var config Config
+	err = yaml.Unmarshal(configFile, &config)
+	if err != nil {
+		return Config{}, err
+	}
+	log.Println("Loaded configuration:", config)
+	return config, nil
+}
+
 func setUpExitSignals() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c,
@@ -36,43 +60,51 @@ func setUpExitSignals() {
 		syscall.SIGTERM, // termination
 	)
 
-	fmt.Println("Listening for exit signals...")
+	log.Println("Listening for exit signals...")
 
 	go func() {
 		signal := <-c
-		fmt.Println("Got interrupt signal:", signal)
-		fmt.Println("Shutting down Hamilton Launch Server...")
+		log.Println("Got interrupt signal:", signal)
+		log.Println("Shutting down Hamilton Launch Server...")
 		os.Exit(0)
 	}()
 }
 
 func main() {
+	config, err := loadConfig()
+	if err != nil {
+		log.Println(err)
+		log.Println("Failed to load config.yml file")
+		os.Exit(1)
+	}
+
+	setUpExitSignals()
+
 	var connections []*websocket.Conn
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 			return
 		}
 		connections = append(connections, conn)
-		fmt.Println("New client connected")
+		log.Println("New client connected")
 	})
 
-	port := "8000"
-
-	if len(os.Args) > 1 {
-		port = os.Args[1]
+	updateInterval, err := time.ParseDuration(config.UpdateInterval)
+	if err != nil {
+		log.Println("Failed to parse update interval")
+		log.Println(err)
+		os.Exit(1)
 	}
-
-	fmt.Println("Listening on port:", port)
-
-	tick := time.NewTicker(time.Second)
+	tick := time.NewTicker(updateInterval)
 
 	go func() {
 		counter := 0.1
 		for {
 			counter += 0.1
+			log.Println("sending message...")
 			for _, conn := range connections {
 				conn.WriteJSON(Weather{
 					AirTemperature:   counter,
@@ -85,11 +117,10 @@ func main() {
 		}
 	}()
 
-	setUpExitSignals()
-
-	err := http.ListenAndServe(":"+port, nil)
+	log.Println("Listening on port:", config.Port)
+	err = http.ListenAndServe(":"+strconv.Itoa(config.Port), nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		os.Exit(1)
 	}
 
