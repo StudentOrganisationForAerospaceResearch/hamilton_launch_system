@@ -6,10 +6,13 @@ DOCKER_HOME="/hamilton_launch_board/"
 
 if [ "$1" == "init" ]; then
     docker build -t $IMAGE_NAME .
+    docker run --rm \
+        --volume "$DIR:$DOCKER_HOME" \
+        $IMAGE_NAME yarn install --frozen-lockfile
 elif [ "$1" == "install" ]; then
     docker run --rm \
         --volume "$DIR:$DOCKER_HOME" \
-        $IMAGE_NAME yarn add moment
+        $IMAGE_NAME yarn add "${@:2}"
 elif [ "$1" == "start" ]; then
     docker run --rm \
         --volume "$DIR:$DOCKER_HOME" \
