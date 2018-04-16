@@ -4,4 +4,5 @@ WORKDIR /hamilton_launch_server/
 
 RUN go get \
 	gopkg.in/yaml.v2 \
-	github.com/gorilla/websocket
+	github.com/gorilla/websocket \
+	github.com/tarm/serial

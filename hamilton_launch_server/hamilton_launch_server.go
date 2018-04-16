@@ -16,8 +16,10 @@ import (
 )
 
 type Config struct {
-	UpdateIntervals UpdateIntervals `yaml:"update_intervals"`
-	Port            int             `yaml:"port"`
+	WeatherUpdateInterval string `yaml:"weather_update_interval"`
+	AvionicsPort          string `yaml:"avionics_port"`
+	AvionicsBaudrate      int    `yaml:"avionics_baudrate"`
+	Port                  int    `yaml:"port"`
 }
 
 var (
@@ -29,7 +31,6 @@ var (
 			return true
 		},
 	}
-	connections []*websocket.Conn
 )
 
 func loadConfig() (Config, error) {
@@ -55,7 +56,7 @@ func setUpExitSignals() {
 		syscall.SIGTERM, // termination
 	)
 
-	log.Println("Listening for exit signals...")
+	log.Println("Listening for exit signals, hit [CTRL+C] to quit")
 
 	go func() {
 		signal := <-c
@@ -65,34 +66,18 @@ func setUpExitSignals() {
 	}()
 }
 
-func serveWs(w http.ResponseWriter, r *http.Request) {
+func serveWs(conns *[]*websocket.Conn, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	connections = append(connections, conn)
+	*conns = append(*conns, conn)
 	log.Println("New client connected")
 }
 
-func sendUpdates(updateIntervals UpdateIntervals) {
-	tick := time.NewTicker(updateIntervals.weatherInterval())
-	go func() {
-		for {
-			log.Println("Sending Weather")
-			for _, conn := range connections {
-				weather, err := getWeather()
-				if err != nil {
-					log.Println(err)
-				}
-				conn.WriteJSON(weather)
-			}
-			<-tick.C // Block until next cycle
-		}
-	}()
-}
-
 func main() {
+	// Setup configuration
 	config, err := loadConfig()
 	if err != nil {
 		log.Println(err)
@@ -100,11 +85,26 @@ func main() {
 		os.Exit(1)
 	}
 
+	weatherUpdateInterval, err := time.ParseDuration(config.WeatherUpdateInterval)
+	if err != nil {
+		log.Println("Failed to parse update interval")
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	var connections []*websocket.Conn
+
+	// Send updates
+	go sendWeather(&connections, weatherUpdateInterval)
+	go sendAvionicsReporting(connections, config.AvionicsPort, config.AvionicsBaudrate)
+
+	// Capture (keyboard) interrupt signals for exit
 	setUpExitSignals()
 
-	http.HandleFunc("/ws", serveWs)
-
-	sendUpdates(config.UpdateIntervals)
+	// Serve
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(&connections, w, r)
+	})
 
 	log.Println("Listening on port:", config.Port)
 	err = http.ListenAndServe(":"+strconv.Itoa(config.Port), nil)
