@@ -6,7 +6,7 @@ const weather = {
     relativeHumidity: '-'
   },
   mutations: {
-    setWeather(state, newWeather) {
+    setWeather (state, newWeather) {
       state.airTemperature = newWeather.airTemperature.toFixed(1)
       state.windSpeed = newWeather.windSpeed.toFixed(1)
       state.windDirection = newWeather.windDirection.toFixed(1)
