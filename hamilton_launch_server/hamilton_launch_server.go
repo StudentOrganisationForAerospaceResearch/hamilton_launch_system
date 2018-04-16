@@ -15,16 +15,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Weather struct {
-	AirTemperature   float64 `json:"airTemperature"`
-	WindSpeed        float64 `json:"windSpeed"`
-	WindDirection    float64 `json:"windDirection"`
-	RelativeHumidity float64 `json:"relativeHumidity"`
-}
-
 type Config struct {
-	UpdateInterval string `yaml:"update_interval"`
-	Port           int    `yaml:"port"`
+	UpdateIntervals UpdateIntervals `yaml:"update_intervals"`
+	Port            int             `yaml:"port"`
 }
 
 var (
@@ -32,9 +25,11 @@ var (
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
+			// frontend is served seperately
 			return true
 		},
 	}
+	connections []*websocket.Conn
 )
 
 func loadConfig() (Config, error) {
@@ -70,6 +65,33 @@ func setUpExitSignals() {
 	}()
 }
 
+func serveWs(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	connections = append(connections, conn)
+	log.Println("New client connected")
+}
+
+func sendUpdates(updateIntervals UpdateIntervals) {
+	tick := time.NewTicker(updateIntervals.weatherInterval())
+	go func() {
+		for {
+			log.Println("Sending Weather")
+			for _, conn := range connections {
+				weather, err := getWeather()
+				if err != nil {
+					log.Println(err)
+				}
+				conn.WriteJSON(weather)
+			}
+			<-tick.C // Block until next cycle
+		}
+	}()
+}
+
 func main() {
 	config, err := loadConfig()
 	if err != nil {
@@ -80,42 +102,9 @@ func main() {
 
 	setUpExitSignals()
 
-	var connections []*websocket.Conn
+	http.HandleFunc("/ws", serveWs)
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		connections = append(connections, conn)
-		log.Println("New client connected")
-	})
-
-	updateInterval, err := time.ParseDuration(config.UpdateInterval)
-	if err != nil {
-		log.Println("Failed to parse update interval")
-		log.Println(err)
-		os.Exit(1)
-	}
-	tick := time.NewTicker(updateInterval)
-
-	go func() {
-		counter := 0.1
-		for {
-			counter += 0.1
-			log.Println("sending message...")
-			for _, conn := range connections {
-				conn.WriteJSON(Weather{
-					AirTemperature:   counter,
-					WindSpeed:        counter * 2,
-					WindDirection:    counter * 3,
-					RelativeHumidity: counter * 4,
-				})
-			}
-			<-tick.C // Block until next cycle
-		}
-	}()
+	sendUpdates(config.UpdateIntervals)
 
 	log.Println("Listening on port:", config.Port)
 	err = http.ListenAndServe(":"+strconv.Itoa(config.Port), nil)

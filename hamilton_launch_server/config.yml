@@ -1,3 +1,5 @@
 ---
-  update_interval: 1s
+  update_intervals:
+    weather: 1s
+
   port: 8000
