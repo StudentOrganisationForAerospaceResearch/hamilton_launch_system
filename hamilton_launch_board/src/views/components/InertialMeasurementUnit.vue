@@ -10,19 +10,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelerometer.x }} m/s
+            {{ accelGyroMagnetism.accel.x }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelerometer.y }} m/s
+            {{ accelGyroMagnetism.accel.y }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelerometer.z }} m/s
+            {{ accelGyroMagnetism.accel.z }} m/s
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -37,19 +37,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ gyroscope.x }} m/s
+            {{ accelGyroMagnetism.gyro.x }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ gyroscope.y }} m/s
+            {{ accelGyroMagnetism.gyro.y }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ gyroscope.z }} m/s
+            {{ accelGyroMagnetism.gyro.z }} m/s
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -64,19 +64,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ magnetometer.x }} m/s
+            {{ accelGyroMagnetism.magneto.x }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ magnetometer.y }} m/s
+            {{ accelGyroMagnetism.magneto.y }} m/s
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ magnetometer.z }} m/s
+            {{ accelGyroMagnetism.magneto.z }} m/s
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -86,43 +86,14 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 
 export default {
   name: 'InertialMeasurementUnit',
-  mounted () {
-    setInterval(this.updateData, 100)
-  },
-  data () {
-    return {
-      accelerometer: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      gyroscope: {
-        x: 0,
-        y: 0,
-        z: 0
-      },
-      magnetometer: {
-        x: 0,
-        y: 0,
-        z: 0
-      }
-    }
-  },
-  methods: {
-    updateData () {
-      this.accelerometer.x = 13.04
-      this.accelerometer.y = 75.38
-      this.accelerometer.z = 96.46
-      this.gyroscope.x = 41.15
-      this.gyroscope.y = 8.05
-      this.gyroscope.z = 40.37
-      this.magnetometer.x = 26.62
-      this.magnetometer.y = 0.22
-      this.magnetometer.z = 73.24
-    }
+  computed: {
+    ...mapState({
+      accelGyroMagnetism: state => state.accelGyroMagnetism
+    })
   }
 }
 </script>

@@ -5,38 +5,20 @@
 
       <v-card class="avionics-card" raised>
         <v-card-title primary-title>
-          <h4 class="headline">External Conditions</h4>
+          <h4 class="headline">Rocket Conditions</h4>
         </v-card-title>
         <v-divider></v-divider>
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="subheading">Pressure</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading">{{ externalPressure }} Pa</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ barometer.pressure }} Pa</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Temperature</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading">{{ externalTemperature }} °C</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ barometer.temperature }} °C</v-list-tile-content>
           </v-list-tile>
         </v-list>
       </v-card>
-
-      <v-card class="avionics-card" raised>
-        <v-card-title primary-title>
-          <h4 class="headline">Flight Board</h4>
-        </v-card-title>
-        <v-divider></v-divider>
-        <v-list dense>
-          <v-list-tile>
-            <v-list-tile-content class="subheading">Flight Phase</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading">{{ flightPhase }}</v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile>
-            <v-list-tile-content class="subheading">Temperature</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading">{{ boardTemperature }} °C</v-list-tile-content>
-          </v-list-tile>
-        </v-list>
-      </v-card>
-
       <v-card class="avionics-card" raised>
         <v-card-title primary-title>
           <h4 class="headline">GPS</h4>
@@ -45,7 +27,7 @@
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="subheading">Time</v-list-tile-content>
-            <v-list-tile-content class="align-end subheading">{{ gps.time }}</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ gps.epochTimeMsec }}</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
             <v-list-tile-content class="subheading">Altitude</v-list-tile-content>
@@ -68,6 +50,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import InertialMeasurementUnit from '@/views/components/InertialMeasurementUnit'
 
 export default {
@@ -75,34 +58,11 @@ export default {
   components: {
     InertialMeasurementUnit
   },
-  mounted () {
-    setInterval(this.updateData, 100)
-  },
-  data () {
-    return {
-      externalPressure: 0,
-      externalTemperature: 0,
-      flightPhase: '',
-      boardTemperature: 0,
-      gps: {
-        time: '',
-        altitude: 0,
-        latitude: 0,
-        longitude: 0
-      }
-    }
-  },
-  methods: {
-    updateData () {
-      this.externalPressure = 100
-      this.externalTemperature = 100
-      this.flightPhase = 100
-      this.boardTemperature = 100
-      this.gps.time = 100
-      this.gps.altitude = 100
-      this.gps.latitude = 100
-      this.gps.longitude = 100
-    }
+  computed: {
+    ...mapState({
+      barometer: state => state.barometer,
+      gps: state => state.gps
+    })
   }
 }
 </script>

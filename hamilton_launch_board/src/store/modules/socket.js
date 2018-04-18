@@ -17,7 +17,24 @@ const socket = {
     },
     // default handler called for all methods
     SOCKET_ONMESSAGE (state, message) {
-      store.commit('setWeather', message)
+      switch (message.type) {
+        case 'weather':
+          store.commit('setWeather', message)
+          break
+        case 'accelGyroMagnetism':
+          console.log('bro')
+          store.commit('setAccelGyroMagnetism', message)
+          break
+        case 'barometer':
+          store.commit('setBarometer', message)
+          break
+        case 'gps':
+          store.commit('setGps', message)
+          break
+        case 'oxidizerTankConditions':
+          store.commit('setOxidizerTankConditions', message)
+          break
+      }
     },
     // mutations for reconnect methods
     SOCKET_RECONNECT (state, count) {

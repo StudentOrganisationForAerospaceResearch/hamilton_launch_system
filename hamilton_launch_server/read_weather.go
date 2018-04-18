@@ -7,6 +7,7 @@ import (
 )
 
 type Weather struct {
+	Type             string  `json:"type"`
 	AirTemperature   float64 `json:"airTemperature"`
 	WindSpeed        float64 `json:"windSpeed"`
 	WindDirection    float64 `json:"windDirection"`
@@ -18,6 +19,7 @@ var counter = 0.1
 func getWeather() (Weather, error) {
 	counter += 0.1
 	return Weather{
+		Type:             "weather",
 		AirTemperature:   counter,
 		WindSpeed:        counter * 2,
 		WindDirection:    counter * 3,

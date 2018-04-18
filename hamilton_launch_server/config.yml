@@ -1,5 +1,5 @@
 ---
   weather_update_interval: 1s
-  avionics_port: COM4
+  avionics_port: /dev/pts/5
   avionics_baudrate: 115200
   port: 8000
