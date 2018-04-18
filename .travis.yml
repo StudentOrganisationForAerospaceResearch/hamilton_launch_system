@@ -10,7 +10,6 @@ script:
   - (cd hamilton_launch_server && ./dockerize.sh build win)
   - (cd hamilton_launch_server && ./dockerize.sh build rpi)
   - (cd hamilton_launch_board && ./dockerize.sh init)
-  - (cd hamilton_launch_board && ./dockerize.sh install)
   - (cd hamilton_launch_board && ./dockerize.sh run build)
   - (cd hamilton_launch_board && ./dockerize.sh run lint)
 
