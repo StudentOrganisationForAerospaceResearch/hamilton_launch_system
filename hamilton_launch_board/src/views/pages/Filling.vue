@@ -11,10 +11,10 @@
           <v-progress-circular
             :size="250"
             :width="40"
-            :rotate="360"
-            :value="progress"
+            :rotate="270"
+            :value="fillProgress"
           >
-            <p class="display-2">{{ progress }}%</p>
+            <p class="display-2">{{ fillProgress }}%</p>
           </v-progress-circular>
           <v-list dense>
             <v-list-tile class="mass-item">
@@ -23,7 +23,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Rocket Mass</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ rocketMass }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ ROCKET_MASS }} kg</v-list-tile-content>
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Mass</v-list-tile-content>
@@ -31,7 +31,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Target</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ targetOxidizerMass }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ TARGET_OXIDIZER_MASS }} kg</v-list-tile-content>
             </v-list-tile>
           </v-list>
           <div class="fill-status">
@@ -56,10 +56,10 @@
         <div class="filling-card-content filling-card-content-bar">
           <div class="conditions-label">
             <p class="title">{{ pressure }} kPa</p>
-            <p class="title max">MAX 50 kPa</p>
+            <p class="title max">MAX {{ MAX_PRESSURE }} kPa</p>
           </div>
           <v-progress-linear
-            value="75"
+            :value="pressurePercentage"
             height="20"
             color="white">
           </v-progress-linear>
@@ -74,10 +74,10 @@
         <div class="filling-card-content filling-card-content-bar">
           <div class="conditions-label">
             <p class="title">{{ temperature }} °C</p>
-            <p class="title max">MAX 50 °C</p>
+            <p class="title max">MAX {{ MAX_TEMPERATURE }} °C</p>
           </div>
           <v-progress-linear
-            value="75"
+            :value="temperaturePercentage"
             height="20"
             color="white">
           </v-progress-linear>
@@ -100,14 +100,28 @@ export default {
   },
   data () {
     return {
-      progress: 20,
-      pressure: 50,
+      totalMass: 298.3,
+      ROCKET_MASS: 280.12,
+      TARGET_OXIDIZER_MASS: 21.2,
+      ventValveOpen: true,
+      pressure: 20,
+      MAX_PRESSURE: 50.2,
       temperature: 30,
-      totalMass: 300,
-      rocketMass: 280,
-      oxidizerMass: 20,
-      targetOxidizerMass: 20,
-      ventValveOpen: true
+      MAX_TEMPERATURE: 32.2
+    }
+  },
+  computed: {
+    oxidizerMass: function () {
+      return (this.totalMass - this.ROCKET_MASS).toFixed(2)
+    },
+    fillProgress: function () {
+      return ((this.oxidizerMass / this.TARGET_OXIDIZER_MASS) * 100).toFixed(1)
+    },
+    pressurePercentage: function () {
+      return (this.pressure / this.MAX_PRESSURE) * 100
+    },
+    temperaturePercentage: function () {
+      return (this.temperature / this.MAX_TEMPERATURE) * 100
     }
   }
 }
