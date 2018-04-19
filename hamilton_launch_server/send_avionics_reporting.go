@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/binary"
+	"fmt"
 	"log"
 	"time"
 
@@ -9,9 +11,9 @@ import (
 )
 
 type Vec3 struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-	Z int `json:"z"`
+	X int32 `json:"x"`
+	Y int32 `json:"y"`
+	Z int32 `json:"z"`
 }
 
 type AccelGyroMagnetismMsg struct {
@@ -23,28 +25,32 @@ type AccelGyroMagnetismMsg struct {
 
 type BarometerMsg struct {
 	Type        string `json:"type"`
-	Pressure    int    `json:"pressure"`
-	Temperature int    `json:"temperature"`
+	Pressure    int32  `json:"pressure"`
+	Temperature int32  `json:"temperature"`
 }
 
 type GpsMsg struct {
 	Type          string `json:"type"`
-	Altitude      int    `json:"altitude"`
-	EpochTimeMsec int    `json:"epochTimeMsec"`
-	Latitude      int    `json:"latitude"`
-	Longitude     int    `json:"longitude"`
+	Altitude      int32  `json:"altitude"`
+	EpochTimeMsec int32  `json:"epochTimeMsec"`
+	Latitude      int32  `json:"latitude"`
+	Longitude     int32  `json:"longitude"`
 }
 type OxidizerTankConditionsMsg struct {
 	Type        string `json:"type"`
-	Pressure    int    `json:"pressure"`
-	Temperature int    `json:"temperature"`
+	Pressure    int32  `json:"pressure"`
+	Temperature int32  `json:"temperature"`
 }
 
 const (
 	accelGyroMagnetismHeaderByte     = 0x31 // ASCII '1'
+	accelGyroMagnetismLength         = 1 + 9*4 + 1
 	barometerHeaderByte              = 0x32 // ASCII '2'
+	barometerLength                  = 1 + 2*4 + 1
 	gpsHeaderByte                    = 0x33 // ASCII '3'
+	gpsLength                        = 1 + 4*4 + 1
 	oxidizerTankConditionsHeaderByte = 0x34 // ASCII '4'
+	oxidizerTankConditionsLength     = 1 + 2*4 + 1
 )
 
 func sendAvionicsReporting(conns *[]*websocket.Conn, avionicsPort string, avionicsBaudrate int) {
@@ -83,8 +89,8 @@ func sendAvionicsReporting(conns *[]*websocket.Conn, avionicsPort string, avioni
 			log.Printf("accelGyroMagnetism report received")
 			msg, err = buildAccelGyroMagnetismMsg(buf[:n])
 		case barometerHeaderByte:
-			// externalPressure
-			log.Printf("externalPressure report received")
+			// barometer
+			log.Printf("barometer report received")
 			msg, err = buildBarometerMsg(buf[:n])
 		case gpsHeaderByte:
 			// gps
@@ -111,37 +117,73 @@ func sendAvionicsReporting(conns *[]*websocket.Conn, avionicsPort string, avioni
 	}
 }
 
-func buildAccelGyroMagnetismMsg(buf []byte) (AccelGyroMagnetismMsg, error) {
+func buildAccelGyroMagnetismMsg(buf []byte) (msg AccelGyroMagnetismMsg, err error) {
+	if len(buf) != accelGyroMagnetismLength {
+		return AccelGyroMagnetismMsg{}, fmt.Errorf(
+			"accelGyroMagnetism length invalid, found %d, expected %d",
+			len(buf),
+			accelGyroMagnetismLength)
+	}
 	return AccelGyroMagnetismMsg{
-		Type:    "accelGyroMagnetism",
-		Accel:   Vec3{5, 5, 5},
-		Gyro:    Vec3{5, 5, 5},
-		Magneto: Vec3{5, 5, 5},
+		Type: "accelGyroMagnetism",
+		Accel: Vec3{
+			X: int32(binary.BigEndian.Uint32(buf[1:5])),
+			Y: int32(binary.BigEndian.Uint32(buf[5:9])),
+			Z: int32(binary.BigEndian.Uint32(buf[9:13])),
+		},
+		Gyro: Vec3{
+			X: int32(binary.BigEndian.Uint32(buf[13:17])),
+			Y: int32(binary.BigEndian.Uint32(buf[17:21])),
+			Z: int32(binary.BigEndian.Uint32(buf[21:25])),
+		},
+		Magneto: Vec3{
+			X: int32(binary.BigEndian.Uint32(buf[25:29])),
+			Y: int32(binary.BigEndian.Uint32(buf[29:33])),
+			Z: int32(binary.BigEndian.Uint32(buf[33:37])),
+		},
 	}, nil
 }
 
-func buildBarometerMsg(buf []byte) (BarometerMsg, error) {
+func buildBarometerMsg(buf []byte) (msg BarometerMsg, err error) {
+	if len(buf) != barometerLength {
+		return BarometerMsg{}, fmt.Errorf(
+			"barometer length invalid, found %d, expected %d",
+			len(buf),
+			barometerLength)
+	}
 	return BarometerMsg{
 		Type:        "barometer",
-		Pressure:    5,
-		Temperature: 5,
+		Pressure:    int32(binary.BigEndian.Uint32(buf[1:5])),
+		Temperature: int32(binary.BigEndian.Uint32(buf[5:9])),
 	}, nil
 }
 
-func buildGpsMsg(buf []byte) (GpsMsg, error) {
+func buildGpsMsg(buf []byte) (msg GpsMsg, err error) {
+	if len(buf) != gpsLength {
+		return GpsMsg{}, fmt.Errorf(
+			"gps length invalid, found %d, expected %d",
+			len(buf),
+			gpsLength)
+	}
 	return GpsMsg{
 		Type:          "gps",
-		Altitude:      5,
-		EpochTimeMsec: 5,
-		Latitude:      5,
-		Longitude:     5,
+		Altitude:      int32(binary.BigEndian.Uint32(buf[1:5])),
+		EpochTimeMsec: int32(binary.BigEndian.Uint32(buf[5:9])),
+		Latitude:      int32(binary.BigEndian.Uint32(buf[9:13])),
+		Longitude:     int32(binary.BigEndian.Uint32(buf[13:17])),
 	}, nil
 }
 
-func buildOxidizerTankConditionsMsg(buf []byte) (OxidizerTankConditionsMsg, error) {
+func buildOxidizerTankConditionsMsg(buf []byte) (msg OxidizerTankConditionsMsg, err error) {
+	if len(buf) != oxidizerTankConditionsLength {
+		return OxidizerTankConditionsMsg{}, fmt.Errorf(
+			"oxidizerTankConditions length invalid, found %d, expected %d",
+			len(buf),
+			oxidizerTankConditionsLength)
+	}
 	return OxidizerTankConditionsMsg{
 		Type:        "oxidizerTankConditions",
-		Pressure:    5,
-		Temperature: 5,
+		Pressure:    int32(binary.BigEndian.Uint32(buf[1:5])),
+		Temperature: int32(binary.BigEndian.Uint32(buf[5:9])),
 	}, nil
 }

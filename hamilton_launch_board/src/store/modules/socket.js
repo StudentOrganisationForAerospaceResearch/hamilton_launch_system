@@ -22,7 +22,6 @@ const socket = {
           store.commit('setWeather', message)
           break
         case 'accelGyroMagnetism':
-          console.log('bro')
           store.commit('setAccelGyroMagnetism', message)
           break
         case 'barometer':
