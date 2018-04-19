@@ -3,18 +3,6 @@
     <div class="control-content">
 
       <v-card class="control-card" raised>
-        <v-stepper :value="launchProgress" alt-labels>
-          <v-stepper-header color="yellow">
-            <v-stepper-step step="1" complete>Prelaunch</v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="2">Armed</v-stepper-step>
-            <v-divider></v-divider>
-            <v-stepper-step step="3">Launched</v-stepper-step>
-          </v-stepper-header>
-        </v-stepper>
-      </v-card>
-
-      <v-card class="control-card" raised>
         <v-card-title primary-title>
           <h3 class="headline">Arm</h3>
         </v-card-title>
