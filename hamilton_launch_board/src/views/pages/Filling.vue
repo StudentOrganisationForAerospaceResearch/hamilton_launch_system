@@ -34,6 +34,17 @@
               <v-list-tile-content class="align-end subheading mass">{{ targetOxidizerMass }} kg</v-list-tile-content>
             </v-list-tile>
           </v-list>
+          <div class="fill-status">
+            <h1 class="headline">Vent Valve Status</h1>
+            <div class="display-1 status-content" v-show="ventValveOpen">
+              <h2 class="display-1">OPEN</h2>
+              <plus-network-icon />
+            </div>
+            <div class="display-1 status-content closed-valve" v-show="!ventValveOpen">
+              <h2 class=" display-1">CLOSED</h2>
+              <close-network-icon/>
+            </div>
+          </div>
         </div>
       </v-card>
 
@@ -78,8 +89,15 @@
 </template>
 
 <script>
+import PlusNetworkIcon from 'vue-material-design-icons/plus-network.vue'
+import CloseNetworkIcon from 'vue-material-design-icons/close-network.vue'
+
 export default {
   name: 'Filling',
+  components: {
+    PlusNetworkIcon,
+    CloseNetworkIcon
+  },
   data () {
     return {
       progress: 20,
@@ -88,7 +106,8 @@ export default {
       totalMass: 300,
       rocketMass: 280,
       oxidizerMass: 20,
-      targetOxidizerMass: 20
+      targetOxidizerMass: 20,
+      ventValveOpen: true
     }
   }
 }
@@ -144,6 +163,23 @@ export default {
 }
 
 .max {
+  color: #757575;
+}
+
+.fill-status {
+  text-align-last: center;
+}
+
+.fill-status * {
+  margin-bottom: 1rem;
+}
+
+.status-content {
+  display: flex;
+  justify-content: space-around;
+}
+
+.closed-valve {
   color: #757575;
 }
 </style>
