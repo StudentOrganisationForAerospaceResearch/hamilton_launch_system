@@ -91,9 +91,4 @@ export default {
   margin: 9px;
 }
 
-.avionics-card-content {
-  display: flex;
-  justify-content: center;
-}
-
 </style>
