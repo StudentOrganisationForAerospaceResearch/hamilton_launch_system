@@ -15,6 +15,9 @@
       <v-tab ripple :to="{name:'Filling'}">
         Filling
       </v-tab>
+      <v-tab ripple :to="{name:'Control'}">
+        Control
+      </v-tab>
     </v-tabs>
     <router-view></router-view>
   </v-app>
