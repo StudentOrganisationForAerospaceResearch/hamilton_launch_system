@@ -103,7 +103,7 @@ export default {
       totalMass: 298.3,
       ROCKET_MASS: 280.12,
       TARGET_OXIDIZER_MASS: 21.2,
-      ventValveOpen: true,
+      ventValveOpen: false,
       pressure: 20,
       MAX_PRESSURE: 50.2,
       temperature: 30,
