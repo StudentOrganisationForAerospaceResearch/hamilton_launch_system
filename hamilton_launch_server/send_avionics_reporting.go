@@ -1,5 +1,4 @@
-// +build linux
-// +build windows
+// +build !darwin
 
 package main
 
@@ -9,7 +8,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/tarm/serial"
 )
 
@@ -82,7 +80,7 @@ func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avioni
 		}
 
 		log.Printf("Sending Avionics Report")
-		err := conns.sendMsg(msg)
+		err = conns.sendMsg(msg)
 		if err != nil {
 			log.Println(err)
 			continue
