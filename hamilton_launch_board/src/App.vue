@@ -3,7 +3,11 @@
     <v-toolbar>
       <v-toolbar-title>Hamilton Launch Board</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-title>Student Organization for Aerospace Research</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-title >
+        <lan-connect-icon v-show="connected" />
+        <lan-disconnect-icon v-show="!connected" class="disconnected" />
+      </v-toolbar-title>
     </v-toolbar>
     <v-tabs fixed-tabs height=70 slider-color="yellow">
       <v-tab ripple :to="{name:'Overview'}">
@@ -24,10 +28,25 @@
 </template>
 
 <script>
+import LanConnectIcon from 'vue-material-design-icons/lan-connect.vue'
+import LanDisconnectIcon from 'vue-material-design-icons/lan-disconnect.vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    LanConnectIcon,
+    LanDisconnectIcon
+  },
+  computed: {
+    connected: function () {
+      return this.$store.state.socket.isConnected
+    }
+  }
 }
 </script>
 
-<style>
+<style scoped>
+.disconnected {
+  color: red;
+}
 </style>
