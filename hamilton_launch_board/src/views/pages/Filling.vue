@@ -219,7 +219,7 @@ export default {
 
 .status-content {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .closed-valve {
