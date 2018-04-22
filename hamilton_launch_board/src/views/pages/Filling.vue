@@ -14,7 +14,7 @@
             :rotate="270"
             :value="fillProgress"
           >
-            <p class="display-2">{{ fillProgress }}%</p>
+            <p class="display-2">{{ fillProgress.toFixed(1) }}%</p>
           </v-progress-circular>
           <v-list dense>
             <v-list-tile class="mass-item">
@@ -27,7 +27,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Mass</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ oxidizerMass }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ oxidizerMass.toFixed(2) }} kg</v-list-tile-content>
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Target</v-list-tile-content>
@@ -41,6 +41,15 @@
               <plus-network-icon />
             </div>
             <div class="display-1 status-content closed-valve" v-show="!ventValveOpen">
+              <h2 class=" display-1">CLOSED</h2>
+              <close-network-icon/>
+            </div>
+            <h1 class="headline">Fill Valve Status</h1>
+            <div class="display-1 status-content" v-show="fillValveOpen">
+              <h2 class="display-1">OPEN</h2>
+              <plus-network-icon />
+            </div>
+            <div class="display-1 status-content closed-valve" v-show="!fillValveOpen">
               <h2 class=" display-1">CLOSED</h2>
               <close-network-icon/>
             </div>
@@ -91,6 +100,7 @@
 <script>
 import PlusNetworkIcon from 'vue-material-design-icons/plus-network.vue'
 import CloseNetworkIcon from 'vue-material-design-icons/close-network.vue'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Filling',
@@ -98,29 +108,48 @@ export default {
     PlusNetworkIcon,
     CloseNetworkIcon
   },
-  data () {
+  data: function () {
     return {
-      totalMass: 298.3,
-      ROCKET_MASS: 280.12,
+      ROCKET_MASS: 80.12,
       TARGET_OXIDIZER_MASS: 21.2,
-      ventValveOpen: false,
-      pressure: 20,
       MAX_PRESSURE: 50.2,
-      temperature: 30,
       MAX_TEMPERATURE: 32.2
     }
   },
   computed: {
+    ...mapState({
+      totalMass: state => state.fillingInfo.totalMass,
+      ventValveOpen: state => state.fillingInfo.ventValveOpen,
+      fillValveOpen: state => state.fillingInfo.fillValveOpen,
+      pressure: state => state.oxidizerTankConditions.pressure,
+      temperature: state => state.oxidizerTankConditions.temperature
+    }),
     oxidizerMass: function () {
-      return (this.totalMass - this.ROCKET_MASS).toFixed(2)
+      if (this.totalMass === '-') {
+        return '-'
+      } else if (this.totalMass < this.ROCKET_MASS) {
+        return 0;
+      }
+      return this.totalMass - this.ROCKET_MASS
     },
     fillProgress: function () {
-      return ((this.oxidizerMass / this.TARGET_OXIDIZER_MASS) * 100).toFixed(1)
+      if (this.totalMass === '-') {
+        return 0
+      } else if (this.totalMass < this.ROCKET_MASS) {
+        return 0;
+      }
+      return (this.oxidizerMass / this.TARGET_OXIDIZER_MASS) * 100
     },
     pressurePercentage: function () {
+      if (this.pressure === '-') {
+        return 0
+      }
       return (this.pressure / this.MAX_PRESSURE) * 100
     },
     temperaturePercentage: function () {
+      if (this.temperature === '-') {
+        return 0
+      }
       return (this.temperature / this.MAX_TEMPERATURE) * 100
     }
   }

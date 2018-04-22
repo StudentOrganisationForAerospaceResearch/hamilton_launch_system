@@ -97,6 +97,7 @@ func main() {
 	// Send updates
 	go sendWeather(&connections, weatherUpdateInterval)
 	go sendAvionicsReporting(&connections, config.AvionicsPort, config.AvionicsBaudrate)
+	go sendFillingInfo(&connections, weatherUpdateInterval) // use weather interval for now
 
 	// Capture (keyboard) interrupt signals for exit
 	setUpExitSignals()

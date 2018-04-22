@@ -6,6 +6,7 @@ import weather from './modules/weather'
 import barometer from './modules/barometer'
 import gps from './modules/gps'
 import oxidizerTankConditions from './modules/oxidizerTankConditions'
+import fillingInfo from './modules/fillingInfo'
 import socket from './modules/socket'
 
 Vue.use(Vuex)
@@ -20,6 +21,7 @@ const store = new Vuex.Store({
     barometer,
     gps,
     oxidizerTankConditions,
+    fillingInfo,
     socket
   }
 })

@@ -33,6 +33,9 @@ const socket = {
         case 'oxidizerTankConditions':
           store.commit('setOxidizerTankConditions', message)
           break
+        case 'fillingInfo':
+          store.commit('setFillingInfo', message)
+          break
       }
     },
     // mutations for reconnect methods
