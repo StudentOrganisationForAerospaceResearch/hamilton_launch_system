@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gorilla/websocket"
 	"log"
 	"time"
 )
@@ -27,17 +26,21 @@ func getWeather() (Weather, error) {
 	}, nil
 }
 
-func sendWeather(conns *[]*websocket.Conn, interval time.Duration) {
+func sendWeather(conns *SocketConnections, interval time.Duration) {
 	tick := time.NewTicker(interval)
 	for {
-		log.Println("Sending Weather")
-		for _, conn := range *conns {
-			weather, err := getWeather()
-			if err != nil {
-				log.Println(err)
-			}
-			conn.WriteJSON(weather)
-		}
 		<-tick.C // Block until next cycle
+		log.Println("Sending Weather")
+		weather, err := getWeather()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		err = conns.sendMsg(weather)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 	}
 }

@@ -66,14 +66,14 @@ func setUpExitSignals() {
 	}()
 }
 
-func serveWs(conns *[]*websocket.Conn, w http.ResponseWriter, r *http.Request) {
+func serveWs(sc *SocketConnections, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	*conns = append(*conns, conn)
-	log.Println("New client connected")
+	sc.addConn(conn)
+	log.Println("New client connected, total clients: ", len(sc.conns))
 }
 
 func main() {
@@ -92,7 +92,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	var connections []*websocket.Conn
+	var connections SocketConnections
 
 	// Send updates
 	go sendWeather(&connections, weatherUpdateInterval)

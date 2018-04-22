@@ -1,3 +1,6 @@
+// +build linux
+// +build windows
+
 package main
 
 import (
@@ -10,38 +13,6 @@ import (
 	"github.com/tarm/serial"
 )
 
-type Vec3 struct {
-	X int32 `json:"x"`
-	Y int32 `json:"y"`
-	Z int32 `json:"z"`
-}
-
-type AccelGyroMagnetismMsg struct {
-	Type    string `json:"type"`
-	Accel   Vec3   `json:"accel"`
-	Gyro    Vec3   `json:"gyro"`
-	Magneto Vec3   `json:"magneto"`
-}
-
-type BarometerMsg struct {
-	Type        string `json:"type"`
-	Pressure    int32  `json:"pressure"`
-	Temperature int32  `json:"temperature"`
-}
-
-type GpsMsg struct {
-	Type          string `json:"type"`
-	Altitude      int32  `json:"altitude"`
-	EpochTimeMsec int32  `json:"epochTimeMsec"`
-	Latitude      int32  `json:"latitude"`
-	Longitude     int32  `json:"longitude"`
-}
-type OxidizerTankConditionsMsg struct {
-	Type        string `json:"type"`
-	Pressure    int32  `json:"pressure"`
-	Temperature int32  `json:"temperature"`
-}
-
 const (
 	accelGyroMagnetismHeaderByte     = 0x31 // ASCII '1'
 	accelGyroMagnetismLength         = 1 + 9*4 + 1
@@ -53,7 +24,7 @@ const (
 	oxidizerTankConditionsLength     = 1 + 2*4 + 1
 )
 
-func sendAvionicsReporting(conns *[]*websocket.Conn, avionicsPort string, avionicsBaudrate int) {
+func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avionicsBaudrate int) {
 	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -111,13 +82,15 @@ func sendAvionicsReporting(conns *[]*websocket.Conn, avionicsPort string, avioni
 		}
 
 		log.Printf("Sending Avionics Report")
-		for _, conn := range *conns {
-			conn.WriteJSON(msg)
+		err := conns.sendMsg(msg)
+		if err != nil {
+			log.Println(err)
+			continue
 		}
 	}
 }
 
-func buildAccelGyroMagnetismMsg(buf []byte) (msg AccelGyroMagnetismMsg, err error) {
+func buildAccelGyroMagnetismMsg(buf []byte) (AccelGyroMagnetismMsg, error) {
 	if len(buf) != accelGyroMagnetismLength {
 		return AccelGyroMagnetismMsg{}, fmt.Errorf(
 			"accelGyroMagnetism length invalid, found %d, expected %d",
@@ -144,7 +117,7 @@ func buildAccelGyroMagnetismMsg(buf []byte) (msg AccelGyroMagnetismMsg, err erro
 	}, nil
 }
 
-func buildBarometerMsg(buf []byte) (msg BarometerMsg, err error) {
+func buildBarometerMsg(buf []byte) (BarometerMsg, error) {
 	if len(buf) != barometerLength {
 		return BarometerMsg{}, fmt.Errorf(
 			"barometer length invalid, found %d, expected %d",
@@ -158,7 +131,7 @@ func buildBarometerMsg(buf []byte) (msg BarometerMsg, err error) {
 	}, nil
 }
 
-func buildGpsMsg(buf []byte) (msg GpsMsg, err error) {
+func buildGpsMsg(buf []byte) (GpsMsg, error) {
 	if len(buf) != gpsLength {
 		return GpsMsg{}, fmt.Errorf(
 			"gps length invalid, found %d, expected %d",
@@ -174,7 +147,7 @@ func buildGpsMsg(buf []byte) (msg GpsMsg, err error) {
 	}, nil
 }
 
-func buildOxidizerTankConditionsMsg(buf []byte) (msg OxidizerTankConditionsMsg, err error) {
+func buildOxidizerTankConditionsMsg(buf []byte) (OxidizerTankConditionsMsg, error) {
 	if len(buf) != oxidizerTankConditionsLength {
 		return OxidizerTankConditionsMsg{}, fmt.Errorf(
 			"oxidizerTankConditions length invalid, found %d, expected %d",
