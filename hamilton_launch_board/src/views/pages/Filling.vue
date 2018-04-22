@@ -128,7 +128,7 @@ export default {
       if (this.totalMass === '-') {
         return '-'
       } else if (this.totalMass < this.ROCKET_MASS) {
-        return 0;
+        return 0
       }
       return this.totalMass - this.ROCKET_MASS
     },
@@ -136,7 +136,7 @@ export default {
       if (this.totalMass === '-') {
         return 0
       } else if (this.totalMass < this.ROCKET_MASS) {
-        return 0;
+        return 0
       }
       return (this.oxidizerMass / this.TARGET_OXIDIZER_MASS) * 100
     },

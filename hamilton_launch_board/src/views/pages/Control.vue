@@ -13,8 +13,12 @@
               name="input-1"
               label="Arm Code"
               color="yellow"
+              v-model="armCode"
             ></v-text-field>
-            <v-btn>ARM</v-btn>
+            <v-btn large
+              @mousedown="sendArmCommand"
+              @mouseup="stopArmCommand"
+              @mouseleave="stopArmCommand">ARM</v-btn>
           </div>
           <div class="subprogress-section">
             <div class="subprogress">
@@ -22,7 +26,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="softwareArmCounter"
               ></v-progress-circular>
               <h4 class="subheading">Software</h4>
             </div>
@@ -31,7 +35,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="launchSystemsArmCounter"
               ></v-progress-circular>
               <h4 class="subheading">Launch Systems</h4>
             </div>
@@ -40,7 +44,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="vpRocketsArmCounter"
               ></v-progress-circular>
               <h4 class="subheading">VP Rockets</h4>
             </div>
@@ -69,8 +73,12 @@
               name="input-1"
               label="Launch Code"
               color="yellow"
+              v-model="launchCode"
             ></v-text-field>
-            <v-btn>LAUNCH</v-btn>
+            <v-btn large
+              @mousedown="sendLaunchCommand"
+              @mouseup="stopLaunchCommand"
+              @mouseleave="stopLaunchCommand">LAUNCH</v-btn>
           </div>
           <div class="subprogress-section">
             <div class="subprogress">
@@ -78,7 +86,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="softareLaunchCounter"
               ></v-progress-circular>
               <h4 class="subheading">Software</h4>
             </div>
@@ -87,7 +95,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="launchSystemsLaunchCounter"
               ></v-progress-circular>
               <h4 class="subheading">Launch Systems</h4>
             </div>
@@ -96,7 +104,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="armCounter"
+                :value="vpRocketsLaunchCounter"
               ></v-progress-circular>
               <h4 class="subheading">VP Rockets</h4>
             </div>
@@ -106,7 +114,7 @@
               :size="250"
               :width="40"
               :rotate="270"
-              :value="armCounter"
+              :value="launchCounter"
             >
             <h2 class="display-4 disabled">{{ countdown }}</h2>
             </v-progress-circular>
@@ -119,14 +127,57 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 
 export default {
   name: 'Control',
-  data () {
+  data: function () {
     return {
-      launchProgress: 2,
-      armCounter: 20,
-      countdown: 10
+      armCode: '',
+      launchCode: ''
+    }
+  },
+  computed: {
+    ...mapState({
+      softwareArmCounter: state => state.launchControlInfo.softwareArmCounter,
+      launchSystemsArmCounter: state => state.launchControlInfo.launchSystemsArmCounter,
+      vpRocketsArmCounter: state => state.launchControlInfo.vpRocketsArmCounter,
+      armCounter: state => state.launchControlInfo.armCounter,
+      softareLaunchCounter: state => state.launchControlInfo.softareLaunchCounter,
+      launchSystemsLaunchCounter: state => state.launchControlInfo.launchSystemsLaunchCounter,
+      vpRocketsLaunchCounter: state => state.launchControlInfo.vpRocketsLaunchCounter,
+      launchCounter: state => state.launchControlInfo.launchCounter,
+      countdown: state => state.launchControlInfo.countdown
+    })
+  },
+  methods: {
+    sendArmCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'arm',
+        code: this.armCode
+      })
+    },
+    stopArmCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'stopArm',
+        code: this.armCode
+      })
+    },
+    sendLaunchCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'launch',
+        code: this.launchCode
+      })
+    },
+    stopLaunchCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'stopLaunch',
+        code: this.launchCode
+      })
     }
   }
 }
