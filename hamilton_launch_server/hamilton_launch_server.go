@@ -33,6 +33,21 @@ var (
 	}
 )
 
+func init() {
+	launchStatus = LaunchStatus{
+		Type:                       "launchControlInfo",
+		SoftwareArmCounter:         20,
+		LaunchSystemsArmCounter:    20,
+		VPRocketsArmCounter:        20,
+		ArmCounter:                 20,
+		SoftareLaunchCounter:       20,
+		LaunchSystemsLaunchCounter: 20,
+		VPRocketsLaunchCounter:     20,
+		LaunchCounter:              20,
+		Countdown:                  10,
+	}
+}
+
 func loadConfig() (Config, error) {
 	configFilename := "config.yml"
 	configFile, err := ioutil.ReadFile(filepath.Join(filepath.Dir(os.Args[0]), configFilename))
@@ -97,7 +112,8 @@ func main() {
 	// Send updates
 	go sendWeather(&connections, weatherUpdateInterval)
 	go sendAvionicsReporting(&connections, config.AvionicsPort, config.AvionicsBaudrate)
-	go sendFillingInfo(&connections, weatherUpdateInterval) // use weather interval for now
+	go sendFillingInfo(&connections, weatherUpdateInterval)  // use weather interval for now
+	go sendLaunchStatus(&connections, weatherUpdateInterval) // use weather interval for now
 
 	// Capture (keyboard) interrupt signals for exit
 	setUpExitSignals()

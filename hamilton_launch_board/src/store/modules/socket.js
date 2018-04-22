@@ -36,6 +36,8 @@ const socket = {
         case 'fillingInfo':
           store.commit('setFillingInfo', message)
           break
+        case 'launchControlInfo':
+          store.commit('setLaunchControlInfo', message)
       }
     },
     // mutations for reconnect methods

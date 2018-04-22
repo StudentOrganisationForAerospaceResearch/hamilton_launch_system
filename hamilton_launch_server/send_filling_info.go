@@ -30,7 +30,6 @@ func sendFillingInfo(conns *SocketConnections, interval time.Duration) {
 		<-tick.C // Block until next cycle
 		log.Println("Sending FillingInfo")
 		fillingInfo, err := getFillingInfo()
-		log.Println("fillingInfo", fillingInfo)
 		if err != nil {
 			log.Println(err)
 			continue

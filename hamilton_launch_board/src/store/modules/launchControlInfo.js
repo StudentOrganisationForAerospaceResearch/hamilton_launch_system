@@ -20,7 +20,7 @@ const launchControlInfo = {
       state.launchSystemsLaunchCounter = newLaunchControlInfo.launchSystemsLaunchCounter
       state.vpRocketsLaunchCounter = newLaunchControlInfo.vpRocketsLaunchCounter
       state.launchCounter = newLaunchControlInfo.launchCounter
-      state.countdown = newLaunchControlInfo.launchCounter
+      state.countdown = newLaunchControlInfo.countdown
     }
   }
 }
