@@ -27,7 +27,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Mass</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ oxidizerMass.toFixed(2) }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ oxidizerMass }} kg</v-list-tile-content>
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Target</v-list-tile-content>
@@ -130,7 +130,7 @@ export default {
       } else if (this.totalMass < this.ROCKET_MASS) {
         return 0
       }
-      return this.totalMass - this.ROCKET_MASS
+      return (this.totalMass - this.ROCKET_MASS).toFixed(2)
     },
     fillProgress: function () {
       if (this.totalMass === '-') {
