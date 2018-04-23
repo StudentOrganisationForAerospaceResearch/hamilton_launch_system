@@ -122,6 +122,26 @@
         </div>
       </v-card>
 
+      <v-card class="control-card" raised>
+        <v-card-title primary-title>
+          <h3 class="headline">Abort</h3>
+        </v-card-title>
+        <v-divider></v-divider>
+        <div class="control-card-content">
+          <div>
+            <v-text-field
+              name="input-1"
+              label="Abort Code"
+              color="red"
+              v-model="abortCode"
+            ></v-text-field>
+            <v-btn large
+              color="red"
+              @mousedown="sendAbortCommand">ABORT</v-btn>
+          </div>
+        </div>
+      </v-card>
+
     </div>
   </div>
 </template>
@@ -134,7 +154,8 @@ export default {
   data: function () {
     return {
       armCode: '',
-      launchCode: ''
+      launchCode: '',
+      abortCode: ''
     }
   },
   computed: {
@@ -177,6 +198,13 @@ export default {
         type: 'launchControl',
         command: 'stopLaunch',
         code: this.launchCode
+      })
+    },
+    sendAbortCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'abort',
+        code: this.abortCode
       })
     }
   }
