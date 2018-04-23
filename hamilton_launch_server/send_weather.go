@@ -26,18 +26,18 @@ func getWeather() (Weather, error) {
 	}, nil
 }
 
-func sendWeather(conns *SocketConnections, interval time.Duration) {
+func sendWeather(hub *Hub, interval time.Duration) {
 	tick := time.NewTicker(interval)
 	for {
 		<-tick.C // Block until next cycle
-		log.Println("Sending Weather")
 		weather, err := getWeather()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		err = conns.sendMsg(weather)
+		log.Println("Sending Weather")
+		err = hub.sendMsg(weather)
 		if err != nil {
 			log.Println(err)
 			continue

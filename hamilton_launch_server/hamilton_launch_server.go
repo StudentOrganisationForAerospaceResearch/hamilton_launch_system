@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,17 +20,6 @@ type Config struct {
 	AvionicsBaudrate      int    `yaml:"avionics_baudrate"`
 	Port                  int    `yaml:"port"`
 }
-
-var (
-	upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-		CheckOrigin: func(r *http.Request) bool {
-			// frontend is served seperately
-			return true
-		},
-	}
-)
 
 func init() {
 	launchStatus = LaunchStatus{
@@ -81,16 +69,6 @@ func setUpExitSignals() {
 	}()
 }
 
-func serveWs(sc *SocketConnections, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	sc.addConn(conn)
-	log.Println("New client connected, total clients: ", len(sc.conns))
-}
-
 func main() {
 	// Setup configuration
 	config, err := loadConfig()
@@ -107,20 +85,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	var connections SocketConnections
+	hub := newHub()
 
 	// Send updates
-	go sendWeather(&connections, weatherUpdateInterval)
-	go sendAvionicsReporting(&connections, config.AvionicsPort, config.AvionicsBaudrate)
-	go sendFillingInfo(&connections, weatherUpdateInterval)  // use weather interval for now
-	go sendLaunchStatus(&connections, weatherUpdateInterval) // use weather interval for now
+	go sendWeather(&hub, weatherUpdateInterval)
+	go sendAvionicsReporting(&hub, config.AvionicsPort, config.AvionicsBaudrate)
+	go sendFillingInfo(&hub, weatherUpdateInterval)  // use weather interval for now
+	go sendLaunchStatus(&hub, weatherUpdateInterval) // use weather interval for now
+	go hub.run()
 
 	// Capture (keyboard) interrupt signals for exit
 	setUpExitSignals()
 
 	// Serve
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(&connections, w, r)
+		serveWs(&hub, w, r)
 	})
 
 	log.Println("Listening on port:", config.Port)

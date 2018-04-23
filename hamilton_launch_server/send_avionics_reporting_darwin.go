@@ -6,7 +6,7 @@ import (
 )
 
 // mock send avionics reporting for mac
-func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avionicsBaudrate int) {
+func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) {
 	tick := time.NewTicker(time.Second)
 	counter := 0.1
 
@@ -14,19 +14,19 @@ func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avioni
 		<-tick.C // Block until next cycle
 
 		log.Println("Sending Avionics")
-		err := conns.sendMsg(buildAccelGyroMagnetismMsg(counter))
+		err := hub.sendMsg(buildAccelGyroMagnetismMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}
-		err = conns.sendMsg(buildBarometerMsg(counter))
+		err = hub.sendMsg(buildBarometerMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}
-		err = conns.sendMsg(buildGpsMsg(counter))
+		err = hub.sendMsg(buildGpsMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}
-		err = conns.sendMsg(buildOxidizerTankConditionsMsg(counter))
+		err = hub.sendMsg(buildOxidizerTankConditionsMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}

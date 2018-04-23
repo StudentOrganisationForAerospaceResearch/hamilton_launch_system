@@ -24,12 +24,12 @@ type LaunchStatus struct {
 
 var launchStatus LaunchStatus
 
-func sendLaunchStatus(conns *SocketConnections, interval time.Duration) {
+func sendLaunchStatus(hub *Hub, interval time.Duration) {
 	tick := time.NewTicker(interval)
 	for {
 		<-tick.C // Block until next cycle
 		log.Println("Sending LaunchStatus")
-		err := conns.sendMsg(launchStatus)
+		err := hub.sendMsg(launchStatus)
 		if err != nil {
 			log.Println(err)
 			continue
