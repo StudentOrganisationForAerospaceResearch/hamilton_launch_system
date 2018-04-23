@@ -22,7 +22,7 @@ const (
 	oxidizerTankConditionsLength     = 1 + 2*4 + 1
 )
 
-func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avionicsBaudrate int) {
+func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) {
 	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -80,7 +80,7 @@ func sendAvionicsReporting(conns *SocketConnections, avionicsPort string, avioni
 		}
 
 		log.Printf("Sending Avionics Report")
-		err = conns.sendMsg(msg)
+		err = hub.sendMsg(msg)
 		if err != nil {
 			log.Println(err)
 			continue

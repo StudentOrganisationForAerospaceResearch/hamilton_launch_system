@@ -24,18 +24,18 @@ func getFillingInfo() (FillingInfo, error) {
 	}, nil
 }
 
-func sendFillingInfo(conns *SocketConnections, interval time.Duration) {
+func sendFillingInfo(hub *Hub, interval time.Duration) {
 	tick := time.NewTicker(interval)
 	for {
 		<-tick.C // Block until next cycle
-		log.Println("Sending FillingInfo")
 		fillingInfo, err := getFillingInfo()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		err = conns.sendMsg(fillingInfo)
+		log.Println("Sending FillingInfo")
+		err = hub.sendMsg(fillingInfo)
 		if err != nil {
 			log.Println(err)
 			continue
