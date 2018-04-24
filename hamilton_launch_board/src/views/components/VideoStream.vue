@@ -1,15 +1,15 @@
 <template>
-  <div class="avionics">
-    <h1 class="display-1">Avionics Reporting</h1>
-  </div>
+    <v-container>
+      <v-layout>
+        <p>{{ streamFile }}</p>
+        <img :src="'http://localhost:8090/' + streamFile" class="img-responsive" style="width:100%">
+      </v-layout>
+    </v-container>
 </template>
+
 <script>
 export default {
   name: 'VideoStream',
-  data: function () {
-    return {
-      count: 0
-    }
-  }
+  props: ['streamFile']
 }
 </script>
