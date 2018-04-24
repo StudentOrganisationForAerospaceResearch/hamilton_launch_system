@@ -2,16 +2,24 @@
   <v-jumbotron>
     <v-container fill-height>
       <h1 class="display-3">{{ msg }}</h1>
+      <videostream
+        message="Hello">
+      </videostream>
     </v-container>
   </v-jumbotron>
 </template>
 
 <script>
+import VideoStream from '@/views/components/VideoStream'
+
 export default {
   name: 'VideoFeed',
+  components: {
+    VideoStream
+  },
   data () {
     return {
-      msg: 'Video Feed'
+      msg: 'Video Feed Test'
     }
   }
 }
