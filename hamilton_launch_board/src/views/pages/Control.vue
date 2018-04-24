@@ -8,7 +8,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <div class="control-card-content">
-          <div>
+          <div v-show="!isMobile()">
             <v-text-field
               name="input-1"
               label="Arm Code"
@@ -68,7 +68,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <div class="control-card-content">
-          <div>
+          <div v-show="!isMobile()">
             <v-text-field
               name="input-1"
               label="Launch Code"
@@ -86,7 +86,7 @@
                 :size="50"
                 :width="12"
                 :rotate="270"
-                :value="softareLaunchCounter"
+                :value="softwareLaunchCounter"
               ></v-progress-circular>
               <h4 class="subheading">Software</h4>
             </div>
@@ -137,7 +137,7 @@
             ></v-text-field>
             <v-btn large
               color="red"
-              @mousedown="sendAbortCommand">ABORT</v-btn>
+              v-on:click="sendAbortCommand">ABORT</v-btn>
           </div>
         </div>
       </v-card>
@@ -164,7 +164,7 @@ export default {
       launchSystemsArmCounter: state => state.launchControlInfo.launchSystemsArmCounter,
       vpRocketsArmCounter: state => state.launchControlInfo.vpRocketsArmCounter,
       armCounter: state => state.launchControlInfo.armCounter,
-      softareLaunchCounter: state => state.launchControlInfo.softareLaunchCounter,
+      softwareLaunchCounter: state => state.launchControlInfo.softwareLaunchCounter,
       launchSystemsLaunchCounter: state => state.launchControlInfo.launchSystemsLaunchCounter,
       vpRocketsLaunchCounter: state => state.launchControlInfo.vpRocketsLaunchCounter,
       launchCounter: state => state.launchControlInfo.launchCounter,
@@ -206,6 +206,9 @@ export default {
         command: 'abort',
         code: this.abortCode
       })
+    },
+    isMobile: function () {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     }
   }
 }

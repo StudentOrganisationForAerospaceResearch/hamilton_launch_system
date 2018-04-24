@@ -34,7 +34,7 @@ func sendFillingInfo(hub *Hub, interval time.Duration) {
 			continue
 		}
 
-		log.Println("Sending FillingInfo")
+		// log.Println("Sending FillingInfo")
 		err = hub.sendMsg(fillingInfo)
 		if err != nil {
 			log.Println(err)

@@ -15,23 +15,24 @@ import (
 )
 
 type Config struct {
-	WeatherUpdateInterval string `yaml:"weather_update_interval"`
-	AvionicsPort          string `yaml:"avionics_port"`
-	AvionicsBaudrate      int    `yaml:"avionics_baudrate"`
-	Port                  int    `yaml:"port"`
+	WeatherUpdateInterval string       `yaml:"weather_update_interval"`
+	AvionicsPort          string       `yaml:"avionics_port"`
+	AvionicsBaudrate      int          `yaml:"avionics_baudrate"`
+	Port                  int          `yaml:"port"`
+	Codes                 ControlCodes `yaml:"control_codes"`
 }
 
 func init() {
 	launchStatus = LaunchStatus{
 		Type:                       "launchControlInfo",
-		SoftwareArmCounter:         20,
-		LaunchSystemsArmCounter:    20,
-		VPRocketsArmCounter:        20,
-		ArmCounter:                 20,
-		SoftareLaunchCounter:       20,
-		LaunchSystemsLaunchCounter: 20,
-		VPRocketsLaunchCounter:     20,
-		LaunchCounter:              20,
+		SoftwareArmCounter:         0,
+		LaunchSystemsArmCounter:    0,
+		VPRocketsArmCounter:        0,
+		ArmCounter:                 0,
+		SoftwareLaunchCounter:      0,
+		LaunchSystemsLaunchCounter: 0,
+		VPRocketsLaunchCounter:     0,
+		LaunchCounter:              0,
 		Countdown:                  10,
 	}
 }
@@ -81,6 +82,13 @@ func main() {
 	weatherUpdateInterval, err := time.ParseDuration(config.WeatherUpdateInterval)
 	if err != nil {
 		log.Println("Failed to parse update interval")
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	err = setControlCodes(config.Codes)
+	if err != nil {
+		log.Println("Control code error:", config.Codes)
 		log.Println(err)
 		os.Exit(1)
 	}

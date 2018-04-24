@@ -9,7 +9,7 @@ import 'vuetify/dist/vuetify.min.css'
 import 'vue-material-design-icons/styles.css'
 import VueNativeSock from 'vue-native-websocket'
 
-Vue.use(VueNativeSock, 'ws://localhost:8000/ws', {
+Vue.use(VueNativeSock, 'ws://192.168.1.72:8000/ws', {
   store: store,
   format: 'json',
   reconnection: true, // (Boolean) whether to reconnect automatically (false)

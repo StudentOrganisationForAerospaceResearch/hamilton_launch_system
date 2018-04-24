@@ -3,3 +3,12 @@
   avionics_port: /dev/pts/5
   avionics_baudrate: 115200
   port: 8000
+
+  control_codes:
+    software_arm: softa
+    launch_systems_arm: launcha
+    vp_rockets_arm: vpa
+    software_launch: softl
+    launch_systems_launch: launchl
+    vp_rockets_launch: vpl
+    abort: abort

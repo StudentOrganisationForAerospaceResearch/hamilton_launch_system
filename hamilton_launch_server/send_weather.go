@@ -36,7 +36,7 @@ func sendWeather(hub *Hub, interval time.Duration) {
 			continue
 		}
 
-		log.Println("Sending Weather")
+		// log.Println("Sending Weather")
 		err = hub.sendMsg(weather)
 		if err != nil {
 			log.Println(err)

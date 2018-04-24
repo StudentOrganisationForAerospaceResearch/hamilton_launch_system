@@ -22,11 +22,6 @@ const (
 	maxMessageSize = 512
 )
 
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
-)
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -64,13 +59,16 @@ func (c *Client) readPump() {
 		return nil
 	})
 	for {
-		var msg interface{}
-		err := c.conn.ReadJSON(msg)
+		var msg map[string]string
+		err := c.conn.ReadJSON(&msg)
 		if err != nil {
-			log.Println(err)
+			log.Println("err:", err)
 			break
 		}
 		log.Println(msg)
+		if msg["type"] == "launchControl" {
+			handleLaunchControl(msg["code"], msg["command"])
+		}
 	}
 }
 

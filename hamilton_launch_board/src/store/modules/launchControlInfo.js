@@ -4,7 +4,7 @@ const launchControlInfo = {
     launchSystemsArmCounter: 0,
     vpRocketsArmCounter: 0,
     armCounter: 0,
-    softareLaunchCounter: 0,
+    softwareLaunchCounter: 0,
     launchSystemsLaunchCounter: 0,
     vpRocketsLaunchCounter: 0,
     launchCounter: 0,
@@ -16,7 +16,7 @@ const launchControlInfo = {
       state.launchSystemsArmCounter = newLaunchControlInfo.launchSystemsArmCounter
       state.vpRocketsArmCounter = newLaunchControlInfo.vpRocketsArmCounter
       state.armCounter = newLaunchControlInfo.armCounter
-      state.softareLaunchCounter = newLaunchControlInfo.softareLaunchCounter
+      state.softwareLaunchCounter = newLaunchControlInfo.softwareLaunchCounter
       state.launchSystemsLaunchCounter = newLaunchControlInfo.launchSystemsLaunchCounter
       state.vpRocketsLaunchCounter = newLaunchControlInfo.vpRocketsLaunchCounter
       state.launchCounter = newLaunchControlInfo.launchCounter
