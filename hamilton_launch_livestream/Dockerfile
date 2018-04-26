@@ -25,11 +25,13 @@ RUN apt-get update -qq && apt-get -y install \
         texinfo \
         wget \
         zlib1g-dev \
-        yasm
+        yasm \
+        v4l-utils \
+        ffmpeg
 
-RUN git clone https://github.com/FFmpeg/FFmpeg.git
-RUN cd FFmpeg && \
-        git checkout 2ca65fc && \
-        ./configure && \
-        make -j8 && \
-        make install
+#RUN git clone https://github.com/FFmpeg/FFmpeg.git
+#RUN cd FFmpeg && \
+        #git checkout 2ca65fc && \
+        #./configure && \
+        #make -j8 && \
+        #make install
