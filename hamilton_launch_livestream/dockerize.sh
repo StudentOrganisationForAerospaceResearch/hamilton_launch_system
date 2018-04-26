@@ -8,27 +8,22 @@ test_count() {
     local device_string=""
     local ffmpeg_command=""
 
-    docker run -d --rm \
-        --volume "$DIR:$DOCKER_HOME" \
-        -p 8090:8090 \
-        $IMAGE_NAME ffserver -f ffserver.conf
-
     for (( i=0; i<=$((num_devices-1)); i++)); do
         device_string=$device_string"--device=/dev/video$((i)) "
-        #ffmpeg_command=$ffmpeg_command"ffmpeg -f video4linux2 -s 640x480 -r 30 \
-            #-input_format mjpeg -i /dev/video$((i)) http://localhost:8090/feed$((i+1)).ffm \
-             #-nostdin -nostats"
-        #${ffmpeg_command}
-
-        docker run --rm \
-            --volume "$DIR:$DOCKER_HOME" \
-            -p 8090:809$((i)) \
-            --device=/dev/video$((i)) \
-            $IMAGE_NAME ffmpeg -f video4linux2 -s 640x480 -r 30 \
-                -input_format mjpeg \
-                -i /dev/video$((i)) \
-                http://localhost:8090/feed$((i+1)).ffm
+        ffmpeg_command=$ffmpeg_command"ffmpeg -f video4linux2 -s 640x480 -r 30 \
+            -input_format mjpeg -i /dev/video$((i)) http://localhost:8090/feed$((i+1)).ffm \
+             -nostdin -nostats & "
     done
+
+    echo $ffmpeg_command
+
+    docker run --rm \
+        --volume "$DIR:$DOCKER_HOME" \
+        ${device_string} \
+        -p 8090:8090 \
+        $IMAGE_NAME ls -alh && \
+        ffserver -f ffserver.conf & \
+        ${ffmpeg_command}
 }
 
 
