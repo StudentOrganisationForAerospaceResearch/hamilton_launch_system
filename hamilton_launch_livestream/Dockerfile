@@ -1,6 +1,6 @@
 FROM ubuntu:16.04 AS base
 
-WORKDIR /tmp/ffmpeg
+WORKDIR /hamilton_launch_livestream/
 
 # From https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
 RUN apt-get update -qq && apt-get -y install \
@@ -29,7 +29,11 @@ RUN apt-get update -qq && apt-get -y install \
         v4l-utils \
         ffmpeg
 
-#RUN git clone https://github.com/FFmpeg/FFmpeg.git
+RUN apt-get -y install \
+        iputils-ping
+
+RUN apt-get -y install \
+        nmap
 #RUN cd FFmpeg && \
         #git checkout 2ca65fc && \
         #./configure && \
