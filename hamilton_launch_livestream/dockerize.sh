@@ -18,7 +18,7 @@ test_count() {
             --volume "$DIR:$DOCKER_HOME" \
             --network livestream-net \
             ${device_string} \
-            $IMAGE_NAME ${ffmpeg_command}
+            $IMAGE_NAME ${ffmpeg_command} &
     done
 }
 
