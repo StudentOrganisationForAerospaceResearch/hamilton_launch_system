@@ -5,42 +5,44 @@ DOCKER_HOME="/hamilton_launch_livestream/"
 
 test_count() {
     local num_devices=`ls /dev/ | grep "video" | wc -l`
-    local device_string=""
-    local ffmpeg_command=""
 
+    # devices start from /dev/video0
+    # target url starts with /feed1
     for (( i=0; i<=$((num_devices-1)); i++)); do
-        device_string=$device_string"--device=/dev/video$((i)) "
-        ffmpeg_command=$ffmpeg_command"ffmpeg -f video4linux2 -s 640x480 -r 30 \
-            -input_format mjpeg -i /dev/video$((i)) http://localhost:8090/feed$((i+1)).ffm \
-             -nostdin -nostats & "
+        device_string="--device=/dev/video$((i)) "
+        ffmpeg_command="ffmpeg -f video4linux2 -s 640x480 -r 30 \
+            -input_format mjpeg -i /dev/video$((i)) http://localhost:8090/feed$((i+1)).ffm\
+            -nostdin -nostats"
+
+        docker run --rm \
+            -d \
+            --volume "$DIR:$DOCKER_HOME" \
+            --network livestream-net \
+            ${device_string} \
+            $IMAGE_NAME ls -alh && \
+            ffserver -f ffserver.conf & \
+            ${ffmpeg_command} &
     done
-
-    echo $ffmpeg_command
-
-    docker run --rm \
-        --volume "$DIR:$DOCKER_HOME" \
-        ${device_string} \
-        -p 8090:8090 \
-        $IMAGE_NAME ls -alh && \
-        ffserver -f ffserver.conf & \
-        ${ffmpeg_command}
 }
 
+launch_ffserver() {
+    docker run --rm \
+        --volume "$DIR:$DOCKER_HOME" \
+        --network livestream-net \
+        -p 8090:8090 \
+        $IMAGE_NAME ls -alh && \
+        ffserver -f ffserver.conf
+}
 
 if [ "$1" == "init" ]; then
     docker build -t $IMAGE_NAME .
     docker run --rm \
         --volume "$DIR:$DOCKER_HOME" \
         $IMAGE_NAME ffserver --help
-elif [ "$1" == "test-count" ]; then
+elif [ "$1" == "ffmpeg" ]; then
     test_count
 elif [ "$1" == "ffserver" ]; then
-    docker run --rm \
-        --volume "$DIR:$DOCKER_HOME" \
-        $IMAGE_NAME ffserver --help
-elif [ "$1" == "run" ]; then
-    docker run --rm \
-        --volume "$DIR:$DOCKER_HOME" 
+    launch_ffserver
 else
-    echo "usage: $0 [ init | test | run [args] ]"
+    echo "usage: $0 [ init | ffmpeg | ffserver ]"
 fi
