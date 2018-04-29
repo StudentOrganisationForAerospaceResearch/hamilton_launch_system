@@ -1,10 +1,15 @@
 <template>
-  <v-container>
-    <v-layout>
-      <v-flex>
+  <v-container fluid>
+    <v-layout row wrap>
+      <v-flex d-flex xs12 sm6 md4>
         <h1 class="display-3">{{ title }}</h1>
+        <v-card>
+          <videostream
+            stream-file="test1.mjpg">
+          </videostream>
+        </v-card>
         <videostream
-          stream-file="test.mjpg">
+          stream-file="test1.mjpg">
         </videostream>
       </v-flex>
     </v-layout>

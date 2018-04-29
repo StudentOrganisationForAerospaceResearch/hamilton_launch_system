@@ -1,3 +1,5 @@
+#!/bin/bash
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IMAGE_NAME="soar/hamilton_launch_livestream"
 DOCKER_HOME="/hamilton_launch_livestream/"
@@ -33,6 +35,7 @@ launch_ffserver() {
 
 if [ "$1" == "init" ]; then
     docker build -t $IMAGE_NAME .
+    docker network create livestream-net
 elif [ "$1" == "ffmpeg" ]; then
     test_count
 elif [ "$1" == "ffserver" ]; then
