@@ -1,14 +1,27 @@
 <template>
-  <v-container>
-    <v-layout>
-      <v-flex>
+    <v-container fluid grid-list-md>
         <h1 class="display-3">{{ title }}</h1>
-        <videostream
-          stream-file="test.mjpg">
-        </videostream>
-      </v-flex>
-    </v-layout>
-  </v-container>
+        <v-layout row wrap>
+            <v-flex lg6>
+                <videostream stream-file="test1.mjpg">
+                </videostream>
+            </v-flex>
+            <v-flex lg6>
+                <v-layout row wrap>
+                    <v-flex md7>
+                        <videostream
+                          stream-file="test2.mjpg">
+                        </videostream>
+                    </v-flex>
+                    <v-flex md7>
+                        <videostream
+                          stream-file="test3.mjpg">
+                        </videostream>
+                    </v-flex>
+                </v-layout>
+            </v-flex>
+        </v-layout>
+    </v-container>
 </template>
 
 <script>
