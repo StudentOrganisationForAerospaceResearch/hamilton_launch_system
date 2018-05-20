@@ -4,6 +4,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 IMAGE_NAME="soar/hamilton_launch_server"
 DOCKER_HOME="/hamilton_launch_server/"
 
+LIVESTREAM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd livestream && pwd )"
+LIVESTREAM_IMAGE_NAME="soar/hamilton_launch_livestream"
+LIVESTREAM_DOCKER_HOME="/hamilton_launch_livestream/"
+
 ACTION="$1"
 
 UNAME_OUT="$(uname -s)"
@@ -54,9 +58,55 @@ build_rasperry_pi() {
         $IMAGE_NAME go build
 }
 
+run_ffserver() {
+    cd $LIVESTREAM_DIR
+    ls -alh
+    docker run --rm \
+        --name ffserver \
+        --volume "$LIVESTREAM_DIR:$LIVESTREAM_DOCKER_HOME" \
+        --network livestream-net \
+        -p 8090:8090 \
+        $LIVESTREAM_IMAGE_NAME ffserver -f ffserver.conf
+    cd ..
+}
+
+run_ffmpeg() {
+    cd $LIVESTREAM_DIR
+    local num_devices=`ls /dev/ | grep "video" | wc -l`
+
+    # devices start from /dev/video0
+    # target url starts with /feed1
+    for (( i=0; i<=$((num_devices-1)); i++)); do
+        device_string="--device=/dev/video$((i)) "
+        ffmpeg_command="ffmpeg -f video4linux2 -s 640x480 -r 30 \
+            -input_format mjpeg -i /dev/video$((i)) http://ffserver.livestream-net:8090/feed$((i+1)).ffm\
+            -nostdin -nostats"
+
+        docker run --rm \
+            --volume "$LIVESTREAM_DIR:$LIVESTREAM_DOCKER_HOME" \
+            --network livestream-net \
+            ${device_string} \
+            $LIVESTREAM_IMAGE_NAME ${ffmpeg_command} &
+    done
+    cd ..
+}
 
 if [ "$ACTION" == "init" ]; then
-    docker build -t $IMAGE_NAME .
+    target="$2"
+    if [ "$target" == "server" ]; then
+        echo "Initializing Server..."
+        docker build -t $IMAGE_NAME .
+        echo "Done"
+    elif [ "$target" == "livestream" ]; then
+        echo "Initializing Livestream..."
+        cd livestream
+        docker build -t $LIVESTREAM_IMAGE_NAME .
+        docker network create livestream-net
+        cd ..
+        echo "Done"
+    else
+        echo "ERROR: Unknown target initialization [ server | livestream ]"
+    fi
 elif [ "$ACTION" == "build" ]; then
     target="$2"
     if [ -z "$target" ]; then
@@ -82,8 +132,14 @@ elif [ "$ACTION" == "build" ]; then
     else
         echo "ERROR: Unknown target platform [ lin | osx | win | rpi ]"
     fi
+elif [ "$ACTION" == "ffserver" ]; then
+    run_ffserver
+elif [ "$ACTION" == "ffmpeg" ]; then
+    run_ffmpeg
 else
-    echo "usage: $0 init "
+    echo "usage: $0 init [ server | livestream ]"
     echo "       $0 build [ lin | osx | win | rpi ]"
+    echo "       $0 ffserver"
+    echo "       $0 ffmpeg"
     exit 1
 fi

@@ -29,11 +29,6 @@ RUN apt-get update -qq && apt-get -y install \
         v4l-utils \
         ffmpeg
 
-RUN apt-get -y install \
-        iputils-ping
-
-RUN apt-get -y install \
-        nmap
 #RUN cd FFmpeg && \
         #git checkout 2ca65fc && \
         #./configure && \
