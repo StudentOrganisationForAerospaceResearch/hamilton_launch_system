@@ -16,26 +16,36 @@
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
 
+#define FIRE_DURATION 1000
+
 SoftwareSerial umbilical(SERIAL_RX, SERIAL_TX);
 
 bool armed = false;
 bool fired  = false;
 
-
+//This function impliments the arm command
+//The ARM relay is opened
 void arm(){
   digitalWrite(ARM_RELAY, HIGH);
   armed = true;
-  umbilical.read();
+  umbilical.read(); //Read the remaining byte of the command
 }
 
+//This function impliments the fire command
+//The FIRE relay is opened only if the system is armed
+//otherwise the system will ignore this call
 void fire(){
   if(armed){
     digitalWrite(FIRE_RELAY,HIGH);
     fired = true;
-    umbilical.read();
+    delay(FIRE_DURATION); //Wait for the igniter to get hot
+    abort(); //Close the relays
   }
+  umbilical.read(); //Read the remaining byte of the command
 }
 
+//This command will close both Arm and Fire relays
+//In addition it will reset the sytem to a disarmed state
 void abort(){
   digitalWrite(FIRE_RELAY,LOW);
   digitalWrite(ARM_RELAY,LOW);
@@ -52,6 +62,14 @@ void setup() {
   pinMode(RELAY_4, OUTPUT);
   pinMode(RELAY_5, OUTPUT);
   pinMode(RELAY_6, OUTPUT);
+  
+  //Ensure the relays are closed
+  digitalWrite(RELAY_1, LOW);
+  digitalWrite(RELAY_2, LOW);
+  digitalWrite(RELAY_3, LOW);
+  digitalWrite(RELAY_4, LOW);
+  digitalWrite(RELAY_5, LOW);
+  digitalWrite(RELAY_6, LOW);   
 
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
@@ -67,13 +85,6 @@ void setup() {
   //Initialize the Umbilical Serial Connection
   umbilical.begin(UMB_SERIAL_BAUD);
 
-
-  digitalWrite(RELAY_1, LOW);
-  digitalWrite(RELAY_2, LOW);
-  digitalWrite(RELAY_3, LOW);
-  digitalWrite(RELAY_4, LOW);
-  digitalWrite(RELAY_5, LOW);
-  digitalWrite(RELAY_6, LOW);   
 }
 
 
