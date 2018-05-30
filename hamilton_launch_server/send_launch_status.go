@@ -5,6 +5,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/tarm/serial"
 )
 
 type ControlCodes struct {
@@ -18,8 +20,7 @@ type ControlCodes struct {
 }
 
 type LaunchStatus struct {
-	Type  string `json:"type"`
-	mutex sync.Mutex
+	Type string `json:"type"`
 	// all counters from go from 0 -> counterMax
 	SoftwareArmCounter int `json:"softwareArmCounter"`
 	softwareArmActive  bool
@@ -31,6 +32,7 @@ type LaunchStatus struct {
 	vpRocketsArmActive  bool
 
 	ArmCounter int `json:"armCounter"`
+	armed      bool
 
 	SoftwareLaunchCounter int `json:"softwareLaunchCounter"`
 	softwareLaunchActive  bool
@@ -45,6 +47,7 @@ type LaunchStatus struct {
 
 	// countdown goes from 10 -> 0
 	Countdown int `json:"countdown"`
+	launched  bool
 }
 
 var (
@@ -58,8 +61,8 @@ const (
 	counterTick = 10
 )
 
-func sendLaunchStatus(hub *Hub, interval time.Duration) {
-	go updateLaunchCounters()
+func sendLaunchStatus(hub *Hub, interval time.Duration, serialConn *serial.Port) {
+	go updateLaunchCounters(serialConn)
 
 	updatePeriod, _ := time.ParseDuration("300ms")
 	tick := time.NewTicker(updatePeriod)
@@ -74,7 +77,7 @@ func sendLaunchStatus(hub *Hub, interval time.Duration) {
 	}
 }
 
-func updateLaunchCounters() {
+func updateLaunchCounters(serialConn *serial.Port) {
 	updatePeriod, _ := time.ParseDuration("1000ms")
 	tick := time.NewTicker(updatePeriod)
 	for {
@@ -113,6 +116,9 @@ func updateLaunchCounters() {
 			launchStatus.LaunchCounter = 0
 			launchStatus.Countdown = 10
 			continue
+		} else if !launchStatus.armed {
+			launchStatus.armed = true
+			serialConn.Write([]byte{0x21})
 		}
 
 		if launchStatus.softwareLaunchActive {
@@ -144,6 +150,10 @@ func updateLaunchCounters() {
 
 		if launchStatus.LaunchCounter >= counterMax && launchStatus.Countdown > 0 {
 			launchStatus.Countdown--
+			if launchStatus.Countdown <= 0 && !launchStatus.launched {
+				launchStatus.launched = true
+				serialConn.Write([]byte{0x20})
+			}
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.Countdown = 10
 		}

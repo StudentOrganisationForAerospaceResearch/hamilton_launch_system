@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/tarm/serial"
 	"gopkg.in/yaml.v2"
 )
 
@@ -70,6 +71,28 @@ func setUpExitSignals() {
 	}()
 }
 
+func setupSerialPort(avionicsPort string, avionicsBaudrate int) *serial.Port {
+	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate}
+	s, err := serial.OpenPort(c)
+	if err != nil {
+		log.Println("Attempting to open serial port failed, retrying...")
+		// log.Println(err)
+		tick := time.NewTicker(time.Second)
+		for {
+			s, err = serial.OpenPort(c)
+			if err == nil {
+				break
+			} else {
+				log.Println("Attempting to open serial port failed, retrying...")
+				// log.Println(err)
+			}
+			<-tick.C // Block until next cycle
+		}
+	}
+	log.Println("Serial port connection successful")
+	return s
+}
+
 func main() {
 	// Setup configuration
 	config, err := loadConfig()
@@ -94,12 +117,14 @@ func main() {
 	}
 
 	hub := newHub()
+	serialConn := setupSerialPort(config.AvionicsPort, config.AvionicsBaudrate)
+	defer serialConn.Close()
 
 	// Send updates
 	go sendWeather(&hub, weatherUpdateInterval)
-	go sendAvionicsReporting(&hub, config.AvionicsPort, config.AvionicsBaudrate)
-	go sendFillingInfo(&hub, weatherUpdateInterval)  // use weather interval for now
-	go sendLaunchStatus(&hub, weatherUpdateInterval) // use weather interval for now
+	go sendAvionicsReporting(&hub, serialConn)
+	go sendFillingInfo(&hub, weatherUpdateInterval)              // use weather interval for now
+	go sendLaunchStatus(&hub, weatherUpdateInterval, serialConn) // use weather interval for now
 	go hub.run()
 
 	// Capture (keyboard) interrupt signals for exit
