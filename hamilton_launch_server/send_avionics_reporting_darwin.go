@@ -30,6 +30,14 @@ func sendAvionicsReporting(hub *Hub) {
 		if err != nil {
 			log.Println(err)
 		}
+		err = hub.sendMsg(buildCombustionChamberPressureMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
+		err = hub.sendMsg(buildFlightPhaseMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
 
 		counter += 0.1
 	}
@@ -78,5 +86,19 @@ func buildOxidizerTankPressureMsg(counter float64) OxidizerTankPressureMsg {
 	return OxidizerTankPressureMsg{
 		Type:     "oxidizerTankPressure",
 		Pressure: int32(counter * 5),
+	}
+}
+
+func buildCombustionChamberPressureMsg(counter float64) CombustionChamberPressureMsg {
+	return CombustionChamberPressureMsg{
+		Type:     "combustionChamberPressure",
+		Pressure: int32(counter * 13),
+	}
+}
+
+func buildFlightPhaseMsg(counter float64) FlightPhaseMsg {
+	return FlightPhaseMsg{
+		Type:        "flightPhaseMsg",
+		FlightPhase: int8(counter) % 6,
 	}
 }

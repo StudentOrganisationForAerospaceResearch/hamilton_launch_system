@@ -52,6 +52,14 @@ func sendAvionicsReporting(hub *Hub) {
 			// oxidizerTankPressure
 			log.Printf("oxidizerTankPressure report received")
 			msg, err = buildOxidizerTankPressureMsg(buf[:n])
+		case combustionChamberPressureHeaderByte:
+			// combustionChamberPressure
+			log.Printf("combustionChamberPressure report received")
+			msg, err = buildCombustionChamberPressureMsg(buf[:n])
+		case flightPhaseHeaderByte:
+			// flightPhase
+			log.Printf("flightPhase report received")
+			msg, err = buildFlightPhaseMsg(buf[:n])
 		default:
 			log.Printf("Unhandled Avionics case: %x", buf[:n])
 			continue
@@ -138,5 +146,31 @@ func buildOxidizerTankPressureMsg(buf []byte) (OxidizerTankPressureMsg, error) {
 	return OxidizerTankPressureMsg{
 		Type:     "oxidizerTankPressure",
 		Pressure: int32(binary.BigEndian.Uint32(buf[1:5])),
+	}, nil
+}
+
+func buildCombustionChamberPressureMsg(buf []byte) (CombustionChamberPressureMsg, error) {
+	if len(buf) != combustionChamberPressureLength {
+		return CombustionChamberPressureMsg{}, fmt.Errorf(
+			"combutionChamberPressure length invalid, found %d, expected %d",
+			len(buf),
+			combustionChamberPressureLength)
+	}
+	return CombustionChamberPressureMsg{
+		Type:     "combustionChamberPressure",
+		Pressure: int32(binary.BigEndian.Uint32(buf[1:5])),
+	}, nil
+}
+
+func buildFlightPhaseMsg(buf []byte) (FlightPhaseMsg, error) {
+	if len(buf) != flightPhaseLength {
+		return FlightPhaseMsg{}, fmt.Errorf(
+			"flightPhase length invalid, found %d, expected %d",
+			len(buf),
+			flightPhaseLength)
+	}
+	return FlightPhaseMsg{
+		Type:        "flightPhase",
+		FlightPhase: int8(binary.BigEndian.Uint32(buf[1:5])),
 	}, nil
 }

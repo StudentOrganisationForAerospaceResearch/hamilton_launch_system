@@ -31,3 +31,13 @@ type OxidizerTankPressureMsg struct {
 	Type     string `json:"type"`
 	Pressure int32  `json:"pressure"`
 }
+
+type CombustionChamberPressureMsg struct {
+	Type     string `json:"type"`
+	Pressure int32  `json:"pressure"`
+}
+
+type FlightPhaseMsg struct {
+	Type        string `json:"type"`
+	FlightPhase int8   `json:"flightPhase"`
+}
