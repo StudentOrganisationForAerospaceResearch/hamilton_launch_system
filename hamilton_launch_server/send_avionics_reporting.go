@@ -6,8 +6,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-
-	"github.com/tarm/serial"
 )
 
 const (
@@ -27,7 +25,7 @@ const (
 	flightPhaseLength                   = 1 + 1*1 + 1
 )
 
-func sendAvionicsReporting(hub *Hub, serialConn *serial.Port) {
+func sendAvionicsReporting(hub *Hub) {
 	buf := make([]byte, 128)
 	for {
 		n, err := serialConn.Read(buf)

@@ -6,7 +6,7 @@ import (
 )
 
 // mock send avionics reporting for mac
-func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) {
+func sendAvionicsReporting(hub *Hub) {
 	tick := time.NewTicker(time.Second)
 	counter := 0.1
 
@@ -26,7 +26,7 @@ func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) 
 		if err != nil {
 			log.Println(err)
 		}
-		err = hub.sendMsg(buildOxidizerTankConditionsMsg(counter))
+		err = hub.sendMsg(buildOxidizerTankPressureMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}
@@ -74,10 +74,9 @@ func buildGpsMsg(counter float64) GpsMsg {
 	}
 }
 
-func buildOxidizerTankConditionsMsg(counter float64) OxidizerTankConditionsMsg {
-	return OxidizerTankConditionsMsg{
-		Type:        "oxidizerTankConditions",
-		Pressure:    int32(counter * 5),
-		Temperature: int32(counter * 9),
+func buildOxidizerTankPressureMsg(counter float64) OxidizerTankPressureMsg {
+	return OxidizerTankPressureMsg{
+		Type:     "oxidizerTankPressure",
+		Pressure: int32(counter * 5),
 	}
 }

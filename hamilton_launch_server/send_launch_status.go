@@ -5,8 +5,6 @@ import (
 	"log"
 	"sync"
 	"time"
-
-	"github.com/tarm/serial"
 )
 
 type ControlCodes struct {
@@ -61,8 +59,8 @@ const (
 	counterTick = 10
 )
 
-func sendLaunchStatus(hub *Hub, interval time.Duration, serialConn *serial.Port) {
-	go updateLaunchCounters(serialConn)
+func sendLaunchStatus(hub *Hub, interval time.Duration) {
+	go updateLaunchCounters()
 
 	updatePeriod, _ := time.ParseDuration("300ms")
 	tick := time.NewTicker(updatePeriod)
@@ -77,7 +75,7 @@ func sendLaunchStatus(hub *Hub, interval time.Duration, serialConn *serial.Port)
 	}
 }
 
-func updateLaunchCounters(serialConn *serial.Port) {
+func updateLaunchCounters() {
 	updatePeriod, _ := time.ParseDuration("1000ms")
 	tick := time.NewTicker(updatePeriod)
 	for {
@@ -118,7 +116,7 @@ func updateLaunchCounters(serialConn *serial.Port) {
 			continue
 		} else if !launchStatus.armed {
 			launchStatus.armed = true
-			serialConn.Write([]byte{0x21})
+			sendSerialArmCommand()
 		}
 
 		if launchStatus.softwareLaunchActive {
@@ -152,7 +150,7 @@ func updateLaunchCounters(serialConn *serial.Port) {
 			launchStatus.Countdown--
 			if launchStatus.Countdown <= 0 && !launchStatus.launched {
 				launchStatus.launched = true
-				serialConn.Write([]byte{0x20})
+				sendSerialLaunchCommand()
 			}
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.Countdown = 10
