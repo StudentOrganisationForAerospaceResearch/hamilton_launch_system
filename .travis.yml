@@ -6,6 +6,7 @@ services:
 script:
   - (cd hamilton_launch_server && ./dockerize.sh init)
   - (cd hamilton_launch_server && ./dockerize.sh build lin)
+  - (cd hamilton_launch_server && ./dockerize.sh build osx)
   - (cd hamilton_launch_server && ./dockerize.sh build win)
   - (cd hamilton_launch_board && ./dockerize.sh init)
   - (cd hamilton_launch_board && ./dockerize.sh run build)
