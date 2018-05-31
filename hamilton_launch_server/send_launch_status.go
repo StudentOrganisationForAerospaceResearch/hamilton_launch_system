@@ -18,8 +18,7 @@ type ControlCodes struct {
 }
 
 type LaunchStatus struct {
-	Type  string `json:"type"`
-	mutex sync.Mutex
+	Type string `json:"type"`
 	// all counters from go from 0 -> counterMax
 	SoftwareArmCounter int `json:"softwareArmCounter"`
 	softwareArmActive  bool
@@ -31,6 +30,7 @@ type LaunchStatus struct {
 	vpRocketsArmActive  bool
 
 	ArmCounter int `json:"armCounter"`
+	armed      bool
 
 	SoftwareLaunchCounter int `json:"softwareLaunchCounter"`
 	softwareLaunchActive  bool
@@ -45,6 +45,7 @@ type LaunchStatus struct {
 
 	// countdown goes from 10 -> 0
 	Countdown int `json:"countdown"`
+	launched  bool
 }
 
 var (
@@ -113,6 +114,9 @@ func updateLaunchCounters() {
 			launchStatus.LaunchCounter = 0
 			launchStatus.Countdown = 10
 			continue
+		} else if !launchStatus.armed {
+			launchStatus.armed = true
+			sendSerialArmCommand()
 		}
 
 		if launchStatus.softwareLaunchActive {
@@ -144,6 +148,10 @@ func updateLaunchCounters() {
 
 		if launchStatus.LaunchCounter >= counterMax && launchStatus.Countdown > 0 {
 			launchStatus.Countdown--
+			if launchStatus.Countdown <= 0 && !launchStatus.launched {
+				launchStatus.launched = true
+				sendSerialLaunchCommand()
+			}
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.Countdown = 10
 		}

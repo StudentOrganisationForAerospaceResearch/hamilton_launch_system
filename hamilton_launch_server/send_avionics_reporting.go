@@ -6,46 +6,29 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-	"time"
-
-	"github.com/tarm/serial"
 )
 
 const (
-	accelGyroMagnetismHeaderByte     = 0x31 // ASCII '1'
-	accelGyroMagnetismLength         = 1 + 9*4 + 1
-	barometerHeaderByte              = 0x32 // ASCII '2'
-	barometerLength                  = 1 + 2*4 + 1
-	gpsHeaderByte                    = 0x33 // ASCII '3'
-	gpsLength                        = 1 + 4*4 + 1
-	oxidizerTankConditionsHeaderByte = 0x34 // ASCII '4'
-	oxidizerTankConditionsLength     = 1 + 2*4 + 1
+	// reference
+	// https://docs.google.com/spreadsheets/d/1zXDzxP0ji3GgG9f5LK1LuefXFdcyWw12UgOviBXLQS4/edit?usp=sharing
+	accelGyroMagnetismHeaderByte        = 0x31 // ASCII '1'
+	accelGyroMagnetismLength            = 1 + 9*4 + 1
+	barometerHeaderByte                 = 0x32 // ASCII '2'
+	barometerLength                     = 1 + 2*4 + 1
+	gpsHeaderByte                       = 0x33 // ASCII '3'
+	gpsLength                           = 1 + 4*4 + 1
+	oxidizerTankPressureHeaderByte      = 0x34 // ASCII '4'
+	oxidizerTankPressureLength          = 1 + 1*4 + 1
+	combustionChamberPressureHeaderByte = 0x35 // ASCII '5'
+	combustionChamberPressureLength     = 1 + 1*4 + 1
+	flightPhaseHeaderByte               = 0x36 // ASCII '6'
+	flightPhaseLength                   = 1 + 1*1 + 1
 )
 
-func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) {
-	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate}
-	s, err := serial.OpenPort(c)
-	if err != nil {
-		// log.Println("Attempting to open serial port failed, retrying...")
-		// log.Println(err)
-		tick := time.NewTicker(time.Second)
-		for {
-			s, err = serial.OpenPort(c)
-			if err == nil {
-				break
-			} else {
-				// log.Println("Attempting to open serial port failed, retrying...")
-				// log.Println(err)
-			}
-			<-tick.C // Block until next cycle
-		}
-	}
-	defer s.Close()
-	log.Println("Serial port connection successful")
-
+func sendAvionicsReporting(hub *Hub) {
 	buf := make([]byte, 128)
 	for {
-		n, err := s.Read(buf)
+		n, err := serialConn.Read(buf)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -65,10 +48,18 @@ func sendAvionicsReporting(hub *Hub, avionicsPort string, avionicsBaudrate int) 
 			// gps
 			log.Printf("gps report received")
 			msg, err = buildGpsMsg(buf[:n])
-		case oxidizerTankConditionsHeaderByte:
-			// oxidizerTankConditions
-			log.Printf("oxidizerTankConditions report received")
-			msg, err = buildOxidizerTankConditionsMsg(buf[:n])
+		case oxidizerTankPressureHeaderByte:
+			// oxidizerTankPressure
+			log.Printf("oxidizerTankPressure report received")
+			msg, err = buildOxidizerTankPressureMsg(buf[:n])
+		case combustionChamberPressureHeaderByte:
+			// combustionChamberPressure
+			log.Printf("combustionChamberPressure report received")
+			msg, err = buildCombustionChamberPressureMsg(buf[:n])
+		case flightPhaseHeaderByte:
+			// flightPhase
+			log.Printf("flightPhase report received")
+			msg, err = buildFlightPhaseMsg(buf[:n])
 		default:
 			log.Printf("Unhandled Avionics case: %x", buf[:n])
 			continue
@@ -145,16 +136,41 @@ func buildGpsMsg(buf []byte) (GpsMsg, error) {
 	}, nil
 }
 
-func buildOxidizerTankConditionsMsg(buf []byte) (OxidizerTankConditionsMsg, error) {
-	if len(buf) != oxidizerTankConditionsLength {
-		return OxidizerTankConditionsMsg{}, fmt.Errorf(
-			"oxidizerTankConditions length invalid, found %d, expected %d",
+func buildOxidizerTankPressureMsg(buf []byte) (OxidizerTankPressureMsg, error) {
+	if len(buf) != oxidizerTankPressureLength {
+		return OxidizerTankPressureMsg{}, fmt.Errorf(
+			"oxidizerTankPressure length invalid, found %d, expected %d",
 			len(buf),
-			oxidizerTankConditionsLength)
+			oxidizerTankPressureLength)
 	}
-	return OxidizerTankConditionsMsg{
-		Type:        "oxidizerTankConditions",
-		Pressure:    int32(binary.BigEndian.Uint32(buf[1:5])),
-		Temperature: int32(binary.BigEndian.Uint32(buf[5:9])),
+	return OxidizerTankPressureMsg{
+		Type:     "oxidizerTankPressure",
+		Pressure: int32(binary.BigEndian.Uint32(buf[1:5])),
+	}, nil
+}
+
+func buildCombustionChamberPressureMsg(buf []byte) (CombustionChamberPressureMsg, error) {
+	if len(buf) != combustionChamberPressureLength {
+		return CombustionChamberPressureMsg{}, fmt.Errorf(
+			"combutionChamberPressure length invalid, found %d, expected %d",
+			len(buf),
+			combustionChamberPressureLength)
+	}
+	return CombustionChamberPressureMsg{
+		Type:     "combustionChamberPressure",
+		Pressure: int32(binary.BigEndian.Uint32(buf[1:5])),
+	}, nil
+}
+
+func buildFlightPhaseMsg(buf []byte) (FlightPhaseMsg, error) {
+	if len(buf) != flightPhaseLength {
+		return FlightPhaseMsg{}, fmt.Errorf(
+			"flightPhase length invalid, found %d, expected %d",
+			len(buf),
+			flightPhaseLength)
+	}
+	return FlightPhaseMsg{
+		Type:        "flightPhase",
+		FlightPhase: int8(binary.BigEndian.Uint32(buf[1:5])),
 	}, nil
 }

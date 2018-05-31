@@ -26,8 +26,18 @@ type GpsMsg struct {
 	Latitude      int32  `json:"latitude"`
 	Longitude     int32  `json:"longitude"`
 }
-type OxidizerTankConditionsMsg struct {
+
+type OxidizerTankPressureMsg struct {
+	Type     string `json:"type"`
+	Pressure int32  `json:"pressure"`
+}
+
+type CombustionChamberPressureMsg struct {
+	Type     string `json:"type"`
+	Pressure int32  `json:"pressure"`
+}
+
+type FlightPhaseMsg struct {
 	Type        string `json:"type"`
-	Pressure    int32  `json:"pressure"`
-	Temperature int32  `json:"temperature"`
+	FlightPhase int8   `json:"flightPhase"`
 }

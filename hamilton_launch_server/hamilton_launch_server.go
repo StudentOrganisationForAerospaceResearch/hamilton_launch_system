@@ -94,10 +94,11 @@ func main() {
 	}
 
 	hub := newHub()
+	setupSerialConnection(config.AvionicsPort, config.AvionicsBaudrate)
 
 	// Send updates
 	go sendWeather(&hub, weatherUpdateInterval)
-	go sendAvionicsReporting(&hub, config.AvionicsPort, config.AvionicsBaudrate)
+	go sendAvionicsReporting(&hub)
 	go sendFillingInfo(&hub, weatherUpdateInterval)  // use weather interval for now
 	go sendLaunchStatus(&hub, weatherUpdateInterval) // use weather interval for now
 	go hub.run()
