@@ -30,8 +30,14 @@ const socket = {
         case 'gps':
           store.commit('setGps', message)
           break
-        case 'oxidizerTankConditions':
-          store.commit('setOxidizerTankConditions', message)
+        case 'oxidizerTankPressure':
+          store.commit('setOxidizerTankPressure', message)
+          break
+        case 'combustionChamberPressure':
+          store.commit('setCombustionChamberPressure', message)
+          break
+        case 'flightPhaseMsg':
+          store.commit('setFlightPhase', message)
           break
         case 'fillingInfo':
           store.commit('setFillingInfo', message)

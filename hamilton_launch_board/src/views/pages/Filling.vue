@@ -75,24 +75,6 @@
         </div>
       </v-card>
 
-      <v-card class="filling-card" raised>
-        <v-card-title primary-title>
-          <h4 class="headline">Oxidizer Tank Temperature</h4>
-        </v-card-title>
-        <v-divider></v-divider>
-        <div class="filling-card-content filling-card-content-bar">
-          <div class="conditions-label">
-            <p class="title">{{ temperature }} °C</p>
-            <p class="title max">MAX {{ MAX_TEMPERATURE }} °C</p>
-          </div>
-          <v-progress-linear
-            :value="temperaturePercentage"
-            height="20"
-            color="white">
-          </v-progress-linear>
-        </div>
-      </v-card>
-
     </div>
   </div>
 </template>
@@ -121,8 +103,7 @@ export default {
       totalMass: state => state.fillingInfo.totalMass,
       ventValveOpen: state => state.fillingInfo.ventValveOpen,
       fillValveOpen: state => state.fillingInfo.fillValveOpen,
-      pressure: state => state.oxidizerTankConditions.pressure,
-      temperature: state => state.oxidizerTankConditions.temperature
+      pressure: state => state.oxidizerTankPressure.pressure
     }),
     oxidizerMass: function () {
       if (this.totalMass === '-') {
@@ -145,12 +126,6 @@ export default {
         return 0
       }
       return (this.pressure / this.MAX_PRESSURE) * 100
-    },
-    temperaturePercentage: function () {
-      if (this.temperature === '-') {
-        return 0
-      }
-      return (this.temperature / this.MAX_TEMPERATURE) * 100
     }
   }
 }

@@ -10,12 +10,20 @@
         <v-divider></v-divider>
         <v-list dense>
           <v-list-tile>
-            <v-list-tile-content class="subheading">Pressure</v-list-tile-content>
+            <v-list-tile-content class="subheading">External Pressure</v-list-tile-content>
             <v-list-tile-content class="align-end subheading">{{ barometer.pressure }} Pa</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
-            <v-list-tile-content class="subheading">Temperature</v-list-tile-content>
+            <v-list-tile-content class="subheading">External Temperature</v-list-tile-content>
             <v-list-tile-content class="align-end subheading">{{ barometer.temperature }} °C</v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile>
+            <v-list-tile-content class="subheading">Combustion Chamber Pressure</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ combustionChamberPressure.pressure }} Pa</v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile>
+            <v-list-tile-content class="subheading">Flight Phase</v-list-tile-content>
+            <v-list-tile-content class="align-end subheading">{{ flightPhase.phase }}</v-list-tile-content>
           </v-list-tile>
         </v-list>
       </v-card>
@@ -61,6 +69,8 @@ export default {
   computed: {
     ...mapState({
       barometer: state => state.barometer,
+      combustionChamberPressure: state => state.combustionChamberPressure,
+      flightPhase: state => state.flightPhase,
       gps: state => state.gps
     })
   }

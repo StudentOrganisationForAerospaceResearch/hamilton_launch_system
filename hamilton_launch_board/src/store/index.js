@@ -5,7 +5,9 @@ import accelGyroMagnetism from './modules/accelGyroMagnetism'
 import weather from './modules/weather'
 import barometer from './modules/barometer'
 import gps from './modules/gps'
-import oxidizerTankConditions from './modules/oxidizerTankConditions'
+import oxidizerTankPressure from './modules/oxidizerTankPressure'
+import combustionChamberPressure from './modules/combustionChamberPressure'
+import flightPhase from './modules/flightPhase'
 import fillingInfo from './modules/fillingInfo'
 import launchControlInfo from './modules/launchControlInfo'
 import socket from './modules/socket'
@@ -21,7 +23,9 @@ const store = new Vuex.Store({
     accelGyroMagnetism,
     barometer,
     gps,
-    oxidizerTankConditions,
+    oxidizerTankPressure,
+    combustionChamberPressure,
+    flightPhase,
     fillingInfo,
     launchControlInfo,
     socket

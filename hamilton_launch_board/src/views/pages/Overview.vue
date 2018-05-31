@@ -2,7 +2,6 @@
   <v-container>
     <v-layout>
       <v-flex>
-        <weather></weather>
         <avionics></avionics>
       </v-flex>
     </v-layout>

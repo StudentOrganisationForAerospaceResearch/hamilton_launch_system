@@ -103,7 +103,8 @@ export default {
 
 .inertial-measurement-unit {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .imu-card {
