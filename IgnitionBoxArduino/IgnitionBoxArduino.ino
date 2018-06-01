@@ -18,15 +18,22 @@
 
 #define FIRE_DURATION 1000
 
+#define RELAY_ON LOW
+#define RELAY_OFF HIGH
+
+
 SoftwareSerial umbilical(SERIAL_RX, SERIAL_TX);
 
 bool armed = false;
 bool fired  = false;
+long int time;
+
+
 
 //This function impliments the arm command
 //The ARM relay is opened
 void arm(){
-  digitalWrite(ARM_RELAY, HIGH);
+  digitalWrite(ARM_RELAY, RELAY_ON);
   armed = true;
   umbilical.read(); //Read the remaining byte of the command
 }
@@ -36,7 +43,7 @@ void arm(){
 //otherwise the system will ignore this call
 void fire(){
   if(armed){
-    digitalWrite(FIRE_RELAY,HIGH);
+    digitalWrite(FIRE_RELAY, RELAY_ON);
     fired = true;
     delay(FIRE_DURATION); //Wait for the igniter to get hot
     abort(); //Close the relays
@@ -47,8 +54,8 @@ void fire(){
 //This command will close both Arm and Fire relays
 //In addition it will reset the sytem to a disarmed state
 void abort(){
-  digitalWrite(FIRE_RELAY,LOW);
-  digitalWrite(ARM_RELAY,LOW);
+  digitalWrite(FIRE_RELAY, RELAY_OFF);
+  digitalWrite(ARM_RELAY, RELAY_OFF);
   armed = false;
 }
 
@@ -64,12 +71,12 @@ void setup() {
   pinMode(RELAY_6, OUTPUT);
   
   //Ensure the relays are closed
-  digitalWrite(RELAY_1, LOW);
-  digitalWrite(RELAY_2, LOW);
-  digitalWrite(RELAY_3, LOW);
-  digitalWrite(RELAY_4, LOW);
-  digitalWrite(RELAY_5, LOW);
-  digitalWrite(RELAY_6, LOW);   
+  digitalWrite(RELAY_1, RELAY_OFF);
+  digitalWrite(RELAY_2, RELAY_OFF);
+  digitalWrite(RELAY_3, RELAY_OFF);
+  digitalWrite(RELAY_4, RELAY_OFF);
+  digitalWrite(RELAY_5, RELAY_OFF);
+  digitalWrite(RELAY_6, RELAY_OFF);   
 
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
@@ -85,10 +92,12 @@ void setup() {
   //Initialize the Umbilical Serial Connection
   umbilical.begin(UMB_SERIAL_BAUD);
 
+  time = 0;
 }
 
 
 void loop() {
+  
   umbilical.listen();
   
   if(umbilical.available()>0){
@@ -99,7 +108,7 @@ void loop() {
   }
   
   if(Serial.available()>0){
-    byte header = umbilical.read();
+    byte header = Serial.read();
     if(header == 0x21) arm();
     else if(header == 0x20) fire();
     else if(header == 0x2F) abort();
@@ -109,5 +118,9 @@ void loop() {
     }
   }
   
+  if(millis()-time>1000){
+    digitalWrite(LED,0x1^digitalRead(LED));
+    time = millis();
+  }
   
 }
