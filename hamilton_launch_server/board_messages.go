@@ -41,3 +41,8 @@ type FlightPhaseMsg struct {
 	Type        string `json:"type"`
 	FlightPhase int8   `json:"flightPhase"`
 }
+
+type VentStatusMsg struct {
+	Type          string `json:"type"`
+	VentValveOpen bool   `json:"ventStatus"`
+}

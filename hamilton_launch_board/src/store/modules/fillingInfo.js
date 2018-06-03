@@ -5,10 +5,14 @@ const fillingInfo = {
     fillValveOpen: false
   },
   mutations: {
-    setFillingInfo (state, newFillingInfo) {
-      state.totalMass = newFillingInfo.totalMass.toFixed(1)
-      state.ventValveOpen = newFillingInfo.ventValveOpen
-      state.fillValveOpen = newFillingInfo.fillValveOpen
+    setVentValveStatus (state, newVentValveStatus) {
+      state.ventValveOpen = newVentValveStatus.ventValveOpen
+    },
+    setFillValveStatus (state, newFillValveStatus) {
+      state.fillValveOpen = newFillValveStatus.fillValveOpen
+    },
+    setRocketMass (state, newRocketMass) {
+      state.totalMass = newRocketMass.rocketMass
     }
   }
 }

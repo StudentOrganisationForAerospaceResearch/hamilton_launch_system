@@ -39,11 +39,18 @@ const socket = {
         case 'flightPhaseMsg':
           store.commit('setFlightPhase', message)
           break
-        case 'fillingInfo':
-          store.commit('setFillingInfo', message)
-          break
         case 'launchControlInfo':
           store.commit('setLaunchControlInfo', message)
+          break
+        case 'ventStatus':
+          store.commit('setVentValveStatus', message)
+          break
+        case 'fillValveStatus':
+          store.commit('setFillValveStatus', message)
+          break
+        case 'rocketMass':
+          store.commit('setRocketMass', message)
+          break
       }
     },
     // mutations for reconnect methods

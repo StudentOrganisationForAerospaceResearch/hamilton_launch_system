@@ -23,6 +23,8 @@ const (
 	combustionChamberPressureLength     = 1 + 1*4 + 1
 	flightPhaseHeaderByte               = 0x36 // ASCII '6'
 	flightPhaseLength                   = 1 + 1*1 + 1
+	ventStatusHeaderByte                = 0x37 // ASCII '7'
+	ventStatusLength                    = 1 + 1*1 + 1
 )
 
 func sendAvionicsReporting(hub *Hub) {
@@ -60,6 +62,10 @@ func sendAvionicsReporting(hub *Hub) {
 			// flightPhase
 			log.Printf("flightPhase report received")
 			msg, err = buildFlightPhaseMsg(buf[:n])
+		case ventStatusHeaderByte:
+			// flightPhase
+			log.Printf("ventStatus report received")
+			msg, err = buildVentStatusMsg(buf[:n])
 		default:
 			log.Printf("Unhandled Avionics case: %x", buf[:n])
 			continue
@@ -171,6 +177,19 @@ func buildFlightPhaseMsg(buf []byte) (FlightPhaseMsg, error) {
 	}
 	return FlightPhaseMsg{
 		Type:        "flightPhase",
-		FlightPhase: int8(binary.BigEndian.Uint32(buf[1:5])),
+		FlightPhase: int8(buf[1]),
+	}, nil
+}
+
+func buildVentStatusMsg(buf []byte) (VentStatusMsg, error) {
+	if len(buf) != ventStatusLength {
+		return VentStatusMsg{}, fmt.Errorf(
+			"ventStatus length invalid, found %d, expected %d",
+			len(buf),
+			ventStatusLength)
+	}
+	return VentStatusMsg{
+		Type:          "ventStatus",
+		VentValveOpen: int8(buf[1]) != 0,
 	}, nil
 }

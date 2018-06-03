@@ -38,6 +38,10 @@ func sendAvionicsReporting(hub *Hub) {
 		if err != nil {
 			log.Println(err)
 		}
+		err = hub.sendMsg(buildVentStatusMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
 
 		counter += 0.1
 	}
@@ -100,5 +104,12 @@ func buildFlightPhaseMsg(counter float64) FlightPhaseMsg {
 	return FlightPhaseMsg{
 		Type:        "flightPhaseMsg",
 		FlightPhase: int8(counter) % 6,
+	}
+}
+
+func buildVentStatusMsg(counter float64) VentStatusMsg {
+	return VentStatusMsg{
+		Type:          "ventStatusMsg",
+		VentValveOpen: int8(counter)%2 == 0,
 	}
 }
