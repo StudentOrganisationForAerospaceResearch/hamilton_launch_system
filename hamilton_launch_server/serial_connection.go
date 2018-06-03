@@ -42,3 +42,8 @@ func sendSerialLaunchCommand() {
 	log.Println("Sending Launch command")
 	serialConn.Write([]byte{0x20})
 }
+
+func sendSerialAbortCommand() {
+	log.Println("Sending Abort command")
+	serialConn.Write([]byte{0x2F})
+}

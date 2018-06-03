@@ -254,5 +254,6 @@ func handleLaunchControl(code string, controlType string) {
 		launchStatus.LaunchCounter = 0
 
 		launchStatus.Countdown = 10
+		sendSerialAbortCommand()
 	}
 }

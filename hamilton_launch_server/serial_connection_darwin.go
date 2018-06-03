@@ -15,3 +15,7 @@ func sendSerialArmCommand() {
 func sendSerialLaunchCommand() {
 	log.Println("Sending Launch command")
 }
+
+func sendSerialAbortCommand() {
+	log.Println("Sending Abort command")
+}
