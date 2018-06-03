@@ -56,7 +56,11 @@
               :rotate="270"
               :value="armCounter"
             >
-            <h2 class="title disabled">ARMED</h2>
+            <h2
+              class="title"
+              v-bind:class="{ disabled: armCounter < 100 }">
+              ARMED
+            </h2>
             </v-progress-circular>
           </div>
         </div>
@@ -116,7 +120,11 @@
               :rotate="270"
               :value="launchCounter"
             >
-            <h2 class="display-4 disabled">{{ countdown }}</h2>
+            <h2
+              class="display-4"
+              v-bind:class="{ disabled: launchCounter < 100 }">
+              {{ countdown }}
+            </h2>
             </v-progress-circular>
           </div>
         </div>
