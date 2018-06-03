@@ -44,5 +44,5 @@ type FlightPhaseMsg struct {
 
 type VentStatusMsg struct {
 	Type          string `json:"type"`
-	VentValveOpen bool   `json:"ventStatus"`
+	VentValveOpen bool   `json:"ventValveOpen"`
 }
