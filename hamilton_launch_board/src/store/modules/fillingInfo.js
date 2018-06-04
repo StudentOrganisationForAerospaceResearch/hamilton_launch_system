@@ -11,8 +11,8 @@ const fillingInfo = {
     setFillValveStatus (state, newFillValveStatus) {
       state.fillValveOpen = newFillValveStatus.fillValveOpen
     },
-    setRocketMass (state, newRocketMass) {
-      state.totalMass = newRocketMass.rocketMass
+    setTotalMass (state, newTotalMass) {
+      state.totalMass = newTotalMass.totalMass
     }
   }
 }

@@ -46,3 +46,13 @@ type VentStatusMsg struct {
 	Type          string `json:"type"`
 	VentValveOpen bool   `json:"ventValveOpen"`
 }
+
+type FillValveStatusMsg struct {
+	Type          string `json:"type"`
+	FillValveOpen bool   `json:"fillValveOpen"`
+}
+
+type LoadCellDataMsg struct {
+	Type      string `json:"type"`
+	TotalMass int32  `json:"totalMass"`
+}

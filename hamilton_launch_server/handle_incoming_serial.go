@@ -25,10 +25,18 @@ const (
 	flightPhaseLength                   = 1 + 1*1 + 1
 	ventStatusHeaderByte                = 0x37 // ASCII '7'
 	ventStatusLength                    = 1 + 1*1 + 1
+	loadCellDataHeaderByte              = 0x40 // ASCII '7'
+	loadCellDataLength                  = 1 + 1*4 + 1
+
+	maxTotalMassKg             = 5000 // TODO
+	maxOxidizerTankPressureKpa = 5660
 )
 
-func sendAvionicsReporting(hub *Hub) {
+func handleIncomingSerial(hub *Hub) {
 	buf := make([]byte, 128)
+	oxidizerTankPressure := 0
+	loadCellTotalMass := 0
+
 	for {
 		n, err := serialConn.Read(buf)
 		if err != nil {
@@ -53,7 +61,11 @@ func sendAvionicsReporting(hub *Hub) {
 		case oxidizerTankPressureHeaderByte:
 			// oxidizerTankPressure
 			log.Printf("oxidizerTankPressure report received")
-			msg, err = buildOxidizerTankPressureMsg(buf[:n])
+			var tankMsg OxidizerTankPressureMsg
+			tankMsg, err = buildOxidizerTankPressureMsg(buf[:n])
+			oxidizerTankPressure = int(tankMsg.Pressure)
+			adjustFillValve(oxidizerTankPressure, loadCellTotalMass, hub)
+			msg = tankMsg
 		case combustionChamberPressureHeaderByte:
 			// combustionChamberPressure
 			log.Printf("combustionChamberPressure report received")
@@ -66,6 +78,14 @@ func sendAvionicsReporting(hub *Hub) {
 			// flightPhase
 			log.Printf("ventStatus report received")
 			msg, err = buildVentStatusMsg(buf[:n])
+		case loadCellDataHeaderByte:
+			// flightPhase
+			log.Printf("loadCellData report received")
+			var massMsg LoadCellDataMsg
+			massMsg, err = buildLoadCellDataMsg(buf[:n])
+			loadCellTotalMass = int(massMsg.TotalMass)
+			adjustFillValve(oxidizerTankPressure, loadCellTotalMass, hub)
+			msg = massMsg
 		default:
 			log.Printf("Unhandled Avionics case: %x", buf[:n])
 			continue
@@ -76,12 +96,32 @@ func sendAvionicsReporting(hub *Hub) {
 			continue
 		}
 
-		log.Printf("Sending Avionics Report")
+		log.Printf("Sending Serial Report")
 		err = hub.sendMsg(msg)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
+	}
+}
+
+func adjustFillValve(pressure int, mass int, hub *Hub) {
+	msg := FillValveStatusMsg{
+		Type:          "fillValveStatus",
+		FillValveOpen: false,
+	}
+
+	if pressure > maxOxidizerTankPressureKpa*0.95 ||
+		mass > maxTotalMassKg {
+		msg.FillValveOpen = true
+		sendSerialFillValveOpenCommand()
+	} else {
+		sendSerialFillValveCloseCommand()
+	}
+
+	err := hub.sendMsg(msg)
+	if err != nil {
+		log.Println(err)
 	}
 }
 
@@ -191,5 +231,18 @@ func buildVentStatusMsg(buf []byte) (VentStatusMsg, error) {
 	return VentStatusMsg{
 		Type:          "ventStatus",
 		VentValveOpen: int8(buf[1]) != 0,
+	}, nil
+}
+
+func buildLoadCellDataMsg(buf []byte) (LoadCellDataMsg, error) {
+	if len(buf) != loadCellDataLength {
+		return LoadCellDataMsg{}, fmt.Errorf(
+			"loadCellData length invalid, found %d, expected %d",
+			len(buf),
+			loadCellDataLength)
+	}
+	return LoadCellDataMsg{
+		Type:      "loadCellData",
+		TotalMass: int32(binary.BigEndian.Uint32(buf[1:5])),
 	}, nil
 }

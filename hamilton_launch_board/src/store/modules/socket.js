@@ -48,8 +48,8 @@ const socket = {
         case 'fillValveStatus':
           store.commit('setFillValveStatus', message)
           break
-        case 'rocketMass':
-          store.commit('setRocketMass', message)
+        case 'loadCellData':
+          store.commit('setTotalMass', message)
           break
       }
     },

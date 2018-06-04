@@ -6,7 +6,7 @@ import (
 )
 
 // mock send avionics reporting for mac
-func sendAvionicsReporting(hub *Hub) {
+func handleIncomingSerial(hub *Hub) {
 	tick := time.NewTicker(time.Second)
 	counter := 0.1
 
@@ -39,6 +39,14 @@ func sendAvionicsReporting(hub *Hub) {
 			log.Println(err)
 		}
 		err = hub.sendMsg(buildVentStatusMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
+		err = hub.sendMsg(buildLoadCellDataMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
+		err = hub.sendMsg(buildFillValveStatusMsg(counter))
 		if err != nil {
 			log.Println(err)
 		}
@@ -102,14 +110,28 @@ func buildCombustionChamberPressureMsg(counter float64) CombustionChamberPressur
 
 func buildFlightPhaseMsg(counter float64) FlightPhaseMsg {
 	return FlightPhaseMsg{
-		Type:        "flightPhaseMsg",
+		Type:        "flightPhase",
 		FlightPhase: int8(counter) % 6,
 	}
 }
 
 func buildVentStatusMsg(counter float64) VentStatusMsg {
 	return VentStatusMsg{
-		Type:          "ventStatusMsg",
+		Type:          "ventStatus",
 		VentValveOpen: int8(counter)%2 == 0,
+	}
+}
+
+func buildLoadCellDataMsg(counter float64) LoadCellDataMsg {
+	return LoadCellDataMsg{
+		Type:      "loadCellData",
+		TotalMass: int32(counter) * 15,
+	}
+}
+
+func buildFillValveStatusMsg(counter float64) FillValveStatusMsg {
+	return FillValveStatusMsg{
+		Type:          "fillValveStatus",
+		FillValveOpen: int8(counter)%2 == 1,
 	}
 }

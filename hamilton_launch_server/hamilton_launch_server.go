@@ -98,7 +98,7 @@ func main() {
 
 	// Send updates
 	go sendWeather(&hub, weatherUpdateInterval)
-	go sendAvionicsReporting(&hub)
+	go handleIncomingSerial(&hub)
 	go sendFillingInfo(&hub, weatherUpdateInterval)  // use weather interval for now
 	go sendLaunchStatus(&hub, weatherUpdateInterval) // use weather interval for now
 	go hub.run()

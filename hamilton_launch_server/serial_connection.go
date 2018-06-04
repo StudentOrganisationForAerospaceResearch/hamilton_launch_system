@@ -43,6 +43,16 @@ func sendSerialLaunchCommand() {
 	serialConn.Write([]byte{0x20})
 }
 
+func sendSerialFillValveOpenCommand() {
+	log.Println("Sending Fill Valve Open command")
+	serialConn.Write([]byte{0x22})
+}
+
+func sendSerialFillValveCloseCommand() {
+	log.Println("Sending Fill Valve Close command")
+	serialConn.Write([]byte{0x23})
+}
+
 func sendSerialAbortCommand() {
 	log.Println("Sending Abort command")
 	serialConn.Write([]byte{0x2F})
