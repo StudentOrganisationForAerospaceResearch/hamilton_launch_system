@@ -18,9 +18,6 @@ const socket = {
     // default handler called for all methods
     SOCKET_ONMESSAGE (state, message) {
       switch (message.type) {
-        case 'weather':
-          store.commit('setWeather', message)
-          break
         case 'accelGyroMagnetism':
           store.commit('setAccelGyroMagnetism', message)
           break
