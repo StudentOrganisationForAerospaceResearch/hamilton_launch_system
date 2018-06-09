@@ -28,9 +28,3 @@ RUN apt-get update -qq && apt-get -y install \
         yasm \
         v4l-utils \
         ffmpeg
-
-#RUN cd FFmpeg && \
-        #git checkout 2ca65fc && \
-        #./configure && \
-        #make -j8 && \
-        #make install
