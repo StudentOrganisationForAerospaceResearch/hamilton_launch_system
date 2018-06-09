@@ -59,15 +59,14 @@ build_rasperry_pi() {
 }
 
 run_ffserver() {
-    cd $LIVESTREAM_DIR
-    ls -alh
+    (cd $LIVESTREAM_DIR && 
     docker run --rm \
         --name ffserver \
         --volume "$LIVESTREAM_DIR:$LIVESTREAM_DOCKER_HOME" \
         --network livestream-net \
         -p 8090:8090 \
         $LIVESTREAM_IMAGE_NAME ffserver -f ffserver.conf
-    cd ..
+    )
 }
 
 run_ffmpeg() {
@@ -92,21 +91,15 @@ run_ffmpeg() {
 }
 
 if [ "$ACTION" == "init" ]; then
-    target="$2"
-    if [ "$target" == "server" ]; then
-        echo "Initializing Server..."
-        docker build -t $IMAGE_NAME .
-        echo "Done"
-    elif [ "$target" == "livestream" ]; then
-        echo "Initializing Livestream..."
-        cd livestream
-        docker build -t $LIVESTREAM_IMAGE_NAME .
-        docker network create livestream-net
-        cd ..
-        echo "Done"
-    else
-        echo "ERROR: Unknown target initialization [ server | livestream ]"
-    fi
+    echo "Initializing Server..."
+    docker build -t $IMAGE_NAME .
+    echo "Done"
+    echo "Initializing Livestream..."
+    (cd livestream &&
+    docker build -t $LIVESTREAM_IMAGE_NAME . &&
+    docker network create livestream-net
+    )
+    echo "Done"
 elif [ "$ACTION" == "build" ]; then
     target="$2"
     if [ -z "$target" ]; then
@@ -137,7 +130,7 @@ elif [ "$ACTION" == "ffserver" ]; then
 elif [ "$ACTION" == "ffmpeg" ]; then
     run_ffmpeg
 else
-    echo "usage: $0 init [ server | livestream ]"
+    echo "usage: $0 init"
     echo "       $0 build [ lin | osx | win | rpi ]"
     echo "       $0 ffserver"
     echo "       $0 ffmpeg"
