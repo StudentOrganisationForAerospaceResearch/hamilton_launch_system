@@ -126,9 +126,17 @@ elif [ "$ACTION" == "build" ]; then
         echo "ERROR: Unknown target platform [ lin | osx | win | rpi ]"
     fi
 elif [ "$ACTION" == "ffserver" ]; then
-    run_ffserver
+    if [ "$PLATFORM" == "lin" ]; then
+        run_ffserver
+    else
+        echo "ERROR: ffserver command only available on linux"
+    fi
 elif [ "$ACTION" == "ffmpeg" ]; then
-    run_ffmpeg
+    if [ "$PLATFORM" == "lin" ]; then
+        run_ffmpeg
+    else
+        echo "ERROR: ffmpeg command only available on linux"
+    fi
 else
     echo "usage: $0 init"
     echo "       $0 build [ lin | osx | win | rpi ]"
