@@ -82,6 +82,7 @@ run_ffmpeg() {
             -nostdin -nostats"
 
         docker run --rm \
+            --name ffmpeg$((i)) \
             --volume "$LIVESTREAM_DIR:$LIVESTREAM_DOCKER_HOME" \
             --network livestream-net \
             ${device_string} \
@@ -137,10 +138,15 @@ elif [ "$ACTION" == "ffmpeg" ]; then
     else
         echo "ERROR: ffmpeg command only available on linux"
     fi
+elif [ "$ACTION" == "killall" ]; then
+    # Kill the ffmpeg commands first for a clean exit
+    docker kill $(docker ps -q -f name=ffmpeg)
+    docker kill $(docker ps -q -f name=ffserver)
 else
     echo "usage: $0 init"
     echo "       $0 build [ lin | osx | win | rpi ]"
     echo "       $0 ffserver"
     echo "       $0 ffmpeg"
+    echo "       $0 killall - Will kill both the ffmpeg and ffserver docker containers"
     exit 1
 fi
