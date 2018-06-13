@@ -1,4 +1,7 @@
 #include <SoftwareSerial.h>
+//#include <Wire.h>
+//#include <Adafruit_ADS1015.h>
+
 
 #define RELAY_1    2
 #define RELAY_2    3
@@ -6,23 +9,24 @@
 #define RELAY_4    5
 #define RELAY_5    6
 #define RELAY_6    7
-#define SERIAL_TX  9
+#define SERIAL_TX  11
 #define SERIAL_RX  10
 #define LED        13
 
 #define USB_SERIAL_BAUD 115200
-#define UMB_SERIAL_BAUD 115200
+#define UMB_SERIAL_BAUD 9600
 
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
 
-#define FIRE_DURATION 1000
+#define FIRE_DURATION 10000
 
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
 
 
 SoftwareSerial umbilical(SERIAL_RX, SERIAL_TX);
+//Adafruit_ADS1115 ads;
 
 bool armed = false;
 bool fired  = false;
@@ -33,9 +37,11 @@ long int time;
 //This function impliments the arm command
 //The ARM relay is opened
 void arm(){
+  umbilical.write((byte) 0x21);
+  umbilical.write((byte) 0x00);
   digitalWrite(ARM_RELAY, RELAY_ON);
   armed = true;
-  umbilical.read(); //Read the remaining byte of the command
+  Serial.read(); //Read the remaining byte of the command
 }
 
 //This function impliments the fire command
@@ -43,20 +49,25 @@ void arm(){
 //otherwise the system will ignore this call
 void fire(){
   if(armed){
+    umbilical.write((byte) 0x20);
+    umbilical.write((byte) 0x00);
     digitalWrite(FIRE_RELAY, RELAY_ON);
     fired = true;
     delay(FIRE_DURATION); //Wait for the igniter to get hot
-    abort(); //Close the relays
+    abortCommand(); //Close the relays
   }
-  umbilical.read(); //Read the remaining byte of the command
+  Serial.read(); //Read the remaining byte of the command
 }
 
 //This command will close both Arm and Fire relays
 //In addition it will reset the sytem to a disarmed state
-void abort(){
+void abortCommand(){
+  umbilical.write((byte) 0x2F);
+  umbilical.write((byte) 0x00);
   digitalWrite(FIRE_RELAY, RELAY_OFF);
   digitalWrite(ARM_RELAY, RELAY_OFF);
   armed = false;
+  Serial.read();
 }
 
 
@@ -81,16 +92,15 @@ void setup() {
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
   
-  //Set Umbilical Serial PinMode
-  pinMode(SERIAL_RX, OUTPUT);
-  pinMode(SERIAL_TX, OUTPUT);
-  
   //Initialize the USB Serial Connection
   Serial.begin(USB_SERIAL_BAUD);
-  while(!Serial){;} //Wait for USB Serial to connect
+  while(!Serial){
+    ;
+  } //Wait for USB Serial to connect
   
   //Initialize the Umbilical Serial Connection
   umbilical.begin(UMB_SERIAL_BAUD);
+  umbilical.write((byte) 0);
 
   time = 0;
 }
@@ -98,29 +108,24 @@ void setup() {
 
 void loop() {
   
-  umbilical.listen();
-  
-  if(umbilical.available()>0){
-    while(umbilical.available()>0){
-      byte data = umbilical.read();
-      Serial.write(data);
-    }
+  if(umbilical.available()){
+      Serial.write(umbilical.read());
   }
   
-  if(Serial.available()>0){
+  if(Serial.available()){
     byte header = Serial.read();
     if(header == 0x21) arm();
     else if(header == 0x20) fire();
-    else if(header == 0x2F) abort();
-    else while(Serial.available()>0){
-      byte data = Serial.read();
-      umbilical.write(data);
-    }
+    else if(header == 0x2F) abortCommand();
+    else umbilical.write(header);
   }
+
   
   if(millis()-time>1000){
     digitalWrite(LED,0x1^digitalRead(LED));
     time = millis();
   }
+  
+  
   
 }
