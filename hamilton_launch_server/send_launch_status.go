@@ -167,6 +167,11 @@ func handleLaunchControl(code string, controlType string) {
 			log.Println("launchStatus.vpRocketsArmActive = ", newState)
 			launchStatus.vpRocketsArmActive = newState
 		}
+	} else if controlType == "retry" {
+		if launchStatus.armed {
+			// try to arm again only if rocket is already armed
+			sendSerialArmCommand()
+		}
 	}
 
 	if controlType == "launch" || controlType == "stopLaunch" {

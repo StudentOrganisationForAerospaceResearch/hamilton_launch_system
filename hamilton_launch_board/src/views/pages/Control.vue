@@ -19,6 +19,8 @@
               @mousedown="sendArmCommand"
               @mouseup="stopArmCommand"
               @mouseleave="stopArmCommand">ARM</v-btn>
+            <v-btn large v-show="armCounter >= 100 "
+              @mouseup="retryArmCommand">RETRY</v-btn>
           </div>
           <div class="subprogress-section">
             <div class="subprogress">
@@ -191,6 +193,13 @@ export default {
       this.$socket.sendObj({
         type: 'launchControl',
         command: 'stopArm',
+        code: this.armCode
+      })
+    },
+    retryArmCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'launchControl',
+        command: 'retry',
         code: this.armCode
       })
     },
