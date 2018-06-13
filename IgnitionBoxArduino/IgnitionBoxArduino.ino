@@ -18,6 +18,7 @@
 
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
+#define FILL_RELAY RELAY_3
 
 #define FIRE_DURATION 10000
 
@@ -70,6 +71,15 @@ void abortCommand(){
   Serial.read();
 }
 
+void openFillValve(){
+  digitalWrite(FILL_RELAY, RELAY_ON);
+  Serial.read();  
+}
+
+void closeFillValve(){
+  digitalWrite(FILL_RELAY, RELAY_OFF);
+  Serial.read();
+}
 
 void setup() {
   
@@ -117,6 +127,8 @@ void loop() {
     if(header == 0x21) arm();
     else if(header == 0x20) fire();
     else if(header == 0x2F) abortCommand();
+    else if(header == 0x22) openFillValve();
+    else if(header == 0x23) closeFillValve();
     else umbilical.write(header);
   }
 

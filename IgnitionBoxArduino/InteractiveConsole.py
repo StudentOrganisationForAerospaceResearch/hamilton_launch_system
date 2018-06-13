@@ -35,27 +35,46 @@ class AvionicsData:
         return string
 
 def arm(ser):
-    ser.write(bytearray.fromhex('21'))
+    ser.write(bytearray.fromhex('2100'))
     time.sleep(1)
-    print('\nArm Command Sent!')
+    print('Arm Command Sent!\n')
 
 def fire(ser):
-    ser.write(bytearray.fromhex('20'))
+    ser.write(bytearray.fromhex('2000'))
     time.sleep(1)
-    print('\nFire Command Sent!')
+    print('Fire Command Sent!\n')
 
 def abort(ser):
-    ser.write(bytearray.fromhex('2F'))
+    ser.write(bytearray.fromhex('2F00'))
     time.sleep(1)
-    print('\nAbort Command Sent!\n')
+    print('Abort Command Sent!\n')
+
+def setBaud(ser,baud):
+	ser.baudrate = baud
+	time.sleep(1)
+	ser.flush()
+	print("Baudrate set to: ", baud)
+
+def fillOpen(ser):
+    ser.write(bytearray.fromhex('2200'))
+    time.sleep(1)
+    print('Fill Valve Open Sent!\n')
+
+def fillClose(ser):
+    ser.write(bytearray.fromhex('2300'))
+    time.sleep(1)
+    print('Fill Valve Close Sent!\n')
+
 
 def help():
     print('\nList of commands:\n----------------------------------')
     print('abort\t\t send the abort command 0x2F')
     print('arm\t\t send the arm command 0x21')
+    print('clear\t\t clears the terminal')
     print('disconnect\t disconnect and connect to another comm port')
-    print('fire\t\t send the arm command 0x20')
+    print('fire\t\t send the fire command 0x20')
     print('help\t\t prints this help menu')
+    print('fill [open|close]\t opens or closes the Nitrous Fill Valve (command 0x22/0x23)')
     print('quit\t\t closes the serial terminal and program')
     print('read\t\t reads the serial buffer and displays the latest data\n')
 
@@ -72,6 +91,10 @@ def disconnect(ser):
 def quit():
     exit()
 
+
+def readHex(ser):
+    line = ser.readline()
+    print(binascii.hexlify(line))
 
 def readSerial(ser,data):
     line = ser.readline()
@@ -117,7 +140,12 @@ while(True):
         elif(comm == 'help'): help()
         elif(comm == 'disconnect'): ser = disconnect(ser)
         elif(comm == 'quit'): exit()
-        elif(comm == 'read'): readSerial(ser,data)
+        elif(comm == 'hex'): readHex(ser)
+        elif(comm == 'read'): readSerial(ser, data)
+        elif(comm[0:4] == 'baud'): setBaud(ser, int(comm[5:]))
+        elif(comm == 'fill open'): fillOpen(ser)
+        elif(comm == 'fill close'): fillClose(ser)
+        elif(comm == 'clear' or comm == 'cls'): print(chr(27) + "[2J")
         else: print(comm,': Command Not Found')
 
     ser = connect(input('Enter a Serial Port to connect to:'))
