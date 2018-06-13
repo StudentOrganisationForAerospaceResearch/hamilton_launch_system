@@ -213,6 +213,6 @@ func buildLoadCellDataMsg(buf []byte) (LoadCellDataMsg, error) {
 	}
 	return LoadCellDataMsg{
 		Type:      "loadCellData",
-		TotalMass: int32(binary.BigEndian.Uint32(buf[1:5])),
+		TotalMass: float64(binary.BigEndian.Uint32(buf[1:5])),
 	}, nil
 }
