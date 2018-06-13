@@ -68,6 +68,8 @@ func (c *Client) readPump() {
 		log.Println(msg)
 		if msg["type"] == "launchControl" {
 			handleLaunchControl(msg["code"], msg["command"])
+		} else if msg["type"] == "fillControl" {
+			handleFillControl(msg["code"], msg["command"], c.hub)
 		}
 	}
 }

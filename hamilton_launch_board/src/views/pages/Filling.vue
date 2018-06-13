@@ -53,6 +53,20 @@
               <h2 class=" display-1">CLOSED</h2>
               <close-network-icon/>
             </div>
+            <v-text-field
+              name="input-1"
+              label="Fill Control Code"
+              color="yellow"
+              v-model="fillControlCode"
+            ></v-text-field>
+            <div>
+              <v-btn large @mouseup="sendOpenFillValveCommand">
+                OPEN
+              </v-btn>
+              <v-btn large @mouseup="sendCloseFillValveCommand">
+                CLOSE
+              </v-btn>
+            </div>
           </div>
         </div>
       </v-card>
@@ -90,12 +104,29 @@ export default {
     PlusNetworkIcon,
     CloseNetworkIcon
   },
+  methods: {
+    sendOpenFillValveCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'fillControl',
+        command: 'openFillValve',
+        code: this.fillControlCode
+      })
+    },
+    sendCloseFillValveCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'fillControl',
+        command: 'closeFillValve',
+        code: this.fillControlCode
+      })
+    }
+  },
   data: function () {
     return {
       ROCKET_MASS: 80.12,
       TARGET_OXIDIZER_MASS: 21.2,
       MAX_PRESSURE: 50.2,
-      MAX_TEMPERATURE: 32.2
+      MAX_TEMPERATURE: 32.2,
+      fillControlCode: ''
     }
   },
   computed: {

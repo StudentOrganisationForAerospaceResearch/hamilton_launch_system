@@ -53,6 +53,6 @@ type FillValveStatusMsg struct {
 }
 
 type LoadCellDataMsg struct {
-	Type      string `json:"type"`
-	TotalMass int32  `json:"totalMass"`
+	Type      string  `json:"type"`
+	TotalMass float64 `json:"totalMass"`
 }

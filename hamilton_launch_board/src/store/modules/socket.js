@@ -33,7 +33,7 @@ const socket = {
         case 'combustionChamberPressure':
           store.commit('setCombustionChamberPressure', message)
           break
-        case 'flightPhaseMsg':
+        case 'flightPhase':
           store.commit('setFlightPhase', message)
           break
         case 'launchControlInfo':

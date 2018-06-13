@@ -34,8 +34,6 @@ const (
 
 func handleIncomingSerial(hub *Hub) {
 	buf := make([]byte, 128)
-	oxidizerTankPressure := 0
-	loadCellTotalMass := 0
 
 	for {
 		n, err := serialConn.Read(buf)
@@ -61,11 +59,7 @@ func handleIncomingSerial(hub *Hub) {
 		case oxidizerTankPressureHeaderByte:
 			// oxidizerTankPressure
 			log.Printf("oxidizerTankPressure report received")
-			var tankMsg OxidizerTankPressureMsg
-			tankMsg, err = buildOxidizerTankPressureMsg(buf[:n])
-			oxidizerTankPressure = int(tankMsg.Pressure)
-			adjustFillValve(oxidizerTankPressure, loadCellTotalMass, hub)
-			msg = tankMsg
+			msg, err = buildOxidizerTankPressureMsg(buf[:n])
 		case combustionChamberPressureHeaderByte:
 			// combustionChamberPressure
 			log.Printf("combustionChamberPressure report received")
@@ -81,11 +75,7 @@ func handleIncomingSerial(hub *Hub) {
 		case loadCellDataHeaderByte:
 			// flightPhase
 			log.Printf("loadCellData report received")
-			var massMsg LoadCellDataMsg
-			massMsg, err = buildLoadCellDataMsg(buf[:n])
-			loadCellTotalMass = int(massMsg.TotalMass)
-			adjustFillValve(oxidizerTankPressure, loadCellTotalMass, hub)
-			msg = massMsg
+			msg, err = buildLoadCellDataMsg(buf[:n])
 		default:
 			log.Printf("Unhandled Avionics case: %x", buf[:n])
 			continue
@@ -102,26 +92,6 @@ func handleIncomingSerial(hub *Hub) {
 			log.Println(err)
 			continue
 		}
-	}
-}
-
-func adjustFillValve(pressure int, mass int, hub *Hub) {
-	msg := FillValveStatusMsg{
-		Type:          "fillValveStatus",
-		FillValveOpen: false,
-	}
-
-	if pressure > maxOxidizerTankPressureKpa*0.95 ||
-		mass > maxTotalMassKg {
-		msg.FillValveOpen = true
-		sendSerialFillValveOpenCommand()
-	} else {
-		sendSerialFillValveCloseCommand()
-	}
-
-	err := hub.sendMsg(msg)
-	if err != nil {
-		log.Println(err)
 	}
 }
 

@@ -46,10 +46,6 @@ func handleIncomingSerial(hub *Hub) {
 		if err != nil {
 			log.Println(err)
 		}
-		err = hub.sendMsg(buildFillValveStatusMsg(counter))
-		if err != nil {
-			log.Println(err)
-		}
 
 		counter += 0.1
 	}
@@ -125,13 +121,6 @@ func buildVentStatusMsg(counter float64) VentStatusMsg {
 func buildLoadCellDataMsg(counter float64) LoadCellDataMsg {
 	return LoadCellDataMsg{
 		Type:      "loadCellData",
-		TotalMass: int32(counter) * 15,
-	}
-}
-
-func buildFillValveStatusMsg(counter float64) FillValveStatusMsg {
-	return FillValveStatusMsg{
-		Type:          "fillValveStatus",
-		FillValveOpen: int8(counter)%2 == 1,
+		TotalMass: counter,
 	}
 }
