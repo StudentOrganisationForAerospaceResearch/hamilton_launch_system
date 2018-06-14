@@ -12,24 +12,28 @@ const (
 	// reference
 	// https://docs.google.com/spreadsheets/d/1zXDzxP0ji3GgG9f5LK1LuefXFdcyWw12UgOviBXLQS4/edit?usp=sharing
 	accelGyroMagnetismHeaderByte        = 0x31 // ASCII '1'
-	accelGyroMagnetismLength            = 1 + 9*4 + 1
+	accelGyroMagnetismLength            = 4 + 9*4 + 1
 	barometerHeaderByte                 = 0x32 // ASCII '2'
-	barometerLength                     = 1 + 2*4 + 1
+	barometerLength                     = 4 + 2*4 + 1
 	gpsHeaderByte                       = 0x33 // ASCII '3'
-	gpsLength                           = 1 + 4*4 + 1
+	gpsLength                           = 4 + 4*4 + 1
 	oxidizerTankPressureHeaderByte      = 0x34 // ASCII '4'
-	oxidizerTankPressureLength          = 1 + 1*4 + 1
+	oxidizerTankPressureLength          = 4 + 1*4 + 1
 	combustionChamberPressureHeaderByte = 0x35 // ASCII '5'
-	combustionChamberPressureLength     = 1 + 1*4 + 1
+	combustionChamberPressureLength     = 4 + 1*4 + 1
 	flightPhaseHeaderByte               = 0x36 // ASCII '6'
-	flightPhaseLength                   = 1 + 1*1 + 1
+	flightPhaseLength                   = 4 + 1*1 + 1
 	ventStatusHeaderByte                = 0x37 // ASCII '7'
-	ventStatusLength                    = 1 + 1*1 + 1
+	ventStatusLength                    = 4 + 1*1 + 1
 	loadCellDataHeaderByte              = 0x40 // ASCII '7'
-	loadCellDataLength                  = 1 + 1*4 + 1
+	loadCellDataLength                  = 4 + 1*4 + 1
 
 	maxTotalMassKg             = 5000 // TODO
 	maxOxidizerTankPressureKpa = 5660
+)
+
+var (
+	serialBuffer []byte
 )
 
 func handleIncomingSerial(hub *Hub) {
@@ -42,56 +46,89 @@ func handleIncomingSerial(hub *Hub) {
 			continue
 		}
 
+		for i := 0; i < n; i++ {
+			handleIncomingSerialByte(buf[i], hub)
+		}
+	}
+}
+
+func handleIncomingSerialByte(b byte, hub *Hub) {
+	log.Println(serialBuffer)
+	serialBuffer = append(serialBuffer, b)
+
+	if serialBuffer[0] != accelGyroMagnetismHeaderByte &&
+		serialBuffer[0] != barometerHeaderByte &&
+		serialBuffer[0] != gpsHeaderByte &&
+		serialBuffer[0] != oxidizerTankPressureHeaderByte &&
+		serialBuffer[0] != combustionChamberPressureHeaderByte &&
+		serialBuffer[0] != flightPhaseHeaderByte &&
+		serialBuffer[0] != ventStatusHeaderByte &&
+		serialBuffer[0] != loadCellDataHeaderByte {
+		serialBuffer = []byte{}
+		return
+	} else if len(serialBuffer) == 2 {
+		if serialBuffer[0] != serialBuffer[1] {
+			serialBuffer = []byte{b}
+			return
+		}
+	} else if len(serialBuffer) == 3 {
+		if serialBuffer[1] != serialBuffer[2] {
+			serialBuffer = []byte{b}
+			return
+		}
+	} else if len(serialBuffer) == 4 {
+		if serialBuffer[2] != serialBuffer[3] {
+			serialBuffer = []byte{b}
+			return
+		}
+	} else {
 		var msg interface{}
-		switch buf[0] {
-		case accelGyroMagnetismHeaderByte:
-			// accelGyroMagnetism
-			log.Printf("accelGyroMagnetism report received")
-			msg, err = buildAccelGyroMagnetismMsg(buf[:n])
-		case barometerHeaderByte:
-			// barometer
-			log.Printf("barometer report received")
-			msg, err = buildBarometerMsg(buf[:n])
-		case gpsHeaderByte:
-			// gps
-			log.Printf("gps report received")
-			msg, err = buildGpsMsg(buf[:n])
-		case oxidizerTankPressureHeaderByte:
-			// oxidizerTankPressure
-			log.Printf("oxidizerTankPressure report received")
-			msg, err = buildOxidizerTankPressureMsg(buf[:n])
-		case combustionChamberPressureHeaderByte:
-			// combustionChamberPressure
-			log.Printf("combustionChamberPressure report received")
-			msg, err = buildCombustionChamberPressureMsg(buf[:n])
-		case flightPhaseHeaderByte:
-			// flightPhase
-			log.Printf("flightPhase report received")
-			msg, err = buildFlightPhaseMsg(buf[:n])
-		case ventStatusHeaderByte:
-			// flightPhase
-			log.Printf("ventStatus report received")
-			msg, err = buildVentStatusMsg(buf[:n])
-		case loadCellDataHeaderByte:
-			// flightPhase
-			log.Printf("loadCellData report received")
-			msg, err = buildLoadCellDataMsg(buf[:n])
-		default:
-			log.Printf("Unhandled Avionics case: %x", buf[:n])
-			continue
+		var err error
+
+		// we got good header bytes
+		if serialBuffer[0] == accelGyroMagnetismHeaderByte &&
+			len(serialBuffer) == accelGyroMagnetismLength {
+			msg, err = buildAccelGyroMagnetismMsg(serialBuffer)
+		} else if serialBuffer[0] == barometerHeaderByte &&
+			len(serialBuffer) == barometerLength {
+			msg, err = buildBarometerMsg(serialBuffer)
+		} else if serialBuffer[0] == gpsHeaderByte &&
+			len(serialBuffer) == gpsLength {
+			msg, err = buildGpsMsg(serialBuffer)
+		} else if serialBuffer[0] == oxidizerTankPressureHeaderByte &&
+			len(serialBuffer) == oxidizerTankPressureLength {
+			msg, err = buildOxidizerTankPressureMsg(serialBuffer)
+		} else if serialBuffer[0] == combustionChamberPressureHeaderByte &&
+			len(serialBuffer) == combustionChamberPressureLength {
+			msg, err = buildCombustionChamberPressureMsg(serialBuffer)
+		} else if serialBuffer[0] == flightPhaseHeaderByte &&
+			len(serialBuffer) == flightPhaseLength {
+			msg, err = buildFlightPhaseMsg(serialBuffer)
+		} else if serialBuffer[0] == ventStatusHeaderByte &&
+			len(serialBuffer) == ventStatusLength {
+			msg, err = buildVentStatusMsg(serialBuffer)
+		} else if serialBuffer[0] == loadCellDataHeaderByte &&
+			len(serialBuffer) == loadCellDataLength {
+			msg, err = buildLoadCellDataMsg(serialBuffer)
+		} else {
+			// still reading message
+			return
 		}
 
+		serialBuffer = []byte{}
+
 		if err != nil {
-			log.Println("Failed to parse avionics report: %x", buf[:n])
-			continue
+			log.Println("Failed to parse avionics report: %x", serialBuffer)
+			return
 		}
 
 		log.Printf("Sending Serial Report")
 		err = hub.sendMsg(msg)
 		if err != nil {
 			log.Println(err)
-			continue
+			return
 		}
+
 	}
 }
 

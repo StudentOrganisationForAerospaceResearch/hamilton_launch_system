@@ -14,7 +14,7 @@ var serialConn *serial.Port
 var serialMutex sync.Mutex
 
 func setupSerialConnection(avionicsPort string, avionicsBaudrate int) {
-	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate}
+	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate, ReadTimeout: time.Second}
 	s, err := serial.OpenPort(c)
 	if err != nil {
 		log.Println("Attempting to open serial port failed, retrying...")
