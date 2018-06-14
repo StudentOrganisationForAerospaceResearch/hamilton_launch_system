@@ -10,19 +10,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.accel.x }} m/s
+            {{ accelGyroMagnetism.accel.x }} mG
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.accel.y }} m/s
+            {{ accelGyroMagnetism.accel.y }} mG
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.accel.z }} m/s
+            {{ accelGyroMagnetism.accel.z }} mG
           </v-list-tile-content>
         </v-list-tile>
       </v-list>

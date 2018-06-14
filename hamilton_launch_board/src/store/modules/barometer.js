@@ -5,8 +5,8 @@ const barometer = {
   },
   mutations: {
     setBarometer (state, newBarometer) {
-      state.pressure = newBarometer.pressure.toFixed(1)
-      state.temperature = newBarometer.temperature.toFixed(1)
+      state.pressure = newBarometer.pressure / 100
+      state.temperature = newBarometer.temperature / 100
     }
   }
 }
