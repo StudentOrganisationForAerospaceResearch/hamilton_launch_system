@@ -100,44 +100,60 @@ def readSerial(ser,data):
     line = ser.readline()
     i = 0
     while(i<len(line)):
-        if((line[i]==0x31) and (len(line)-i>=38)):
-            if(line[i+37]==0x00):
+
+        #IMU Data
+        if((line[i:i+4]==0x31313131) and (len(line)-i>=41)):
+            if(line[i+40]==0x00):
                 for j in range(9):
-                    data.imu[j] = int.from_bytes(line[i+1+(j*4):line[i+5+(j*4)]], byteorder=order, signed=True)
-                i+=38
+                    data.imu[j] = int.from_bytes(line[i+4+(j*4):line[i+8+(j*4)]], byteorder=order, signed=True)
+                i+=41
             else: i+=1
-        elif((line[i]==0x32) and (len(line)-i>=10)):
-            if(line[i+9]==0x00):
-                data.bar[0] = int.from_bytes(line[i+1:i+5], byteorder=order, signed=True)
-                data.bar[1] = int.from_bytes(line[i+5:i+9], byteorder=order, signed=True)
-                i+=10
+
+        #Barometer Data
+        elif((line[i:i+4]==0x32323232) and (len(line)-i>=13)):
+            if(line[i+12]==0x00):
+                data.bar[0] = int.from_bytes(line[i+4:i+8], byteorder=order, signed=True)
+                data.bar[1] = int.from_bytes(line[i+8:i+12], byteorder=order, signed=True)
+                i+=13
             else: i+=1
-        elif((line[i]==0x33) and (len(line)-i>=18)):
-            if(line[i+17]==0x00):
+
+        #GPS Data
+        elif((line[i:i+4]==0x33333333) and (len(line)-i>=21)):
+            if(line[i+20]==0x00):
                 for j in range(9):
-                    data.imu[j] = int.from_bytes(line[i+1+(j*4):i+5+(j*4)], byteorder=order, signed=True)
-                i+=18
+                    data.imu[j] = int.from_bytes(line[i+4+(j*4):i+8+(j*4)], byteorder=order, signed=True)
+                i+=21
             else: i+=1
-        elif((line[i]==0x34) and (len(line)-i>=6)):
+
+        #Oxidizer Tank Pressure
+        elif((line[i:i+4]==0x34343434) and (len(line)-i>=9)):
+            if(line[i+8]==0x00):
+                data.oxi = int.from_bytes(line[i+4:i+8], byteorder=order, signed=True)
+                i+9
+            else: i+=1
+
+        #Combustion Chamber Pressure
+        elif((line[i]==0x35353535) and (len(line)-i>=9)):
+            if(line[i+8]==0x00):
+                data.cmb = int.from_bytes(line[i+4:i+8], byteorder=order, signed=True)
+                i+=9
+            else: i+=1
+
+        #Flight Phase
+        elif((line[i]==0x36363636) and (len(line)-i>=6)):
             if(line[i+5]==0x00):
-                data.oxi = int.from_bytes(line[i+1:i+4], byteorder=order, signed=True)
+                data.phs = line[i+4]
                 i+=6
             else: i+=1
-        elif((line[i]==0x35) and (len(line)-i>=6)):
+
+        #Vent Status
+        elif((line[i]==0x37373737) and (len(line)-i>=6)):
             if(line[i+5]==0x00):
-                data.cmb = int.from_bytes(line[i+1:i+4], byteorder=order, signed=True)
+                data.vnt = line[i+4]
                 i+=6
             else: i+=1
-        elif((line[i]==0x36) and (len(line)-i>=3)):
-            if(line[i+2]==0x00):
-                data.phs = line[i+1]
-                i+=3
-            else: i+=1
-        elif((line[i]==0x37) and (len(line)-i>=3)):
-            if(line[i+2]==0x00):
-                data.vnt = line[i+1]
-                i+=3
-            else: i+=1
+
+        #No packet detected
         else: i+=1
     print(data)
 
