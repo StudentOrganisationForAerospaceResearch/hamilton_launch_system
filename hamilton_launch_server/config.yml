@@ -1,6 +1,6 @@
 ---
   weather_update_interval: 1s
-  avionics_port: /dev/pts/5
+  avionics_port: /dev/ttyUSB0
   avionics_baudrate: 9600
   port: 8000
 
