@@ -37,19 +37,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.gyro.x }} m/s
+            {{ accelGyroMagnetism.gyro.x }} mDps
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.gyro.y }} m/s
+            {{ accelGyroMagnetism.gyro.y }} mDps
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.gyro.z }} m/s
+            {{ accelGyroMagnetism.gyro.z }} mDps
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -64,19 +64,19 @@
         <v-list-tile>
           <v-list-tile-content class="subheading">X</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.magneto.x }} m/s
+            {{ accelGyroMagnetism.magneto.x }} mGauss
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Y</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.magneto.y }} m/s
+            {{ accelGyroMagnetism.magneto.y }} mGauss
           </v-list-tile-content>
         </v-list-tile>
         <v-list-tile>
           <v-list-tile-content class="subheading">Z</v-list-tile-content>
           <v-list-tile-content class="align-end subheading" >
-            {{ accelGyroMagnetism.magneto.z }} m/s
+            {{ accelGyroMagnetism.magneto.z }} mGauss
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
