@@ -157,25 +157,27 @@ def readSerial(ser,data):
         else: i+=1
     print(data)
 
-ser = None
-data = AvionicsData()
-while(True):
 
-    while(ser!=None):
-        comm = input("Awaiting command (enter help for list of commands):")
-        if(comm == 'arm'): arm(ser)
-        elif(comm == 'fire'): fire(ser)
-        elif(comm == 'abort'): abort(ser)
-        elif(comm == 'help'): help()
-        elif(comm == 'disconnect'): ser = disconnect(ser)
-        elif(comm == 'quit'): exit()
-        elif(comm == 'hex'): readHex(ser)
-        elif(comm == 'read'): readSerial(ser, data)
-        elif(comm[0:4] == 'baud'): setBaud(ser, int(comm[5:]))
-        elif(comm == 'fill open'): fillOpen(ser)
-        elif(comm == 'fill close'): fillClose(ser)
-        elif(comm == 'clear' or comm == 'cls'): print(chr(27) + "[2J")
-        else: print(comm,': Command Not Found')
+if __name__ == "__main__":
+    ser = None
+    data = AvionicsData()
+    while(True):
 
-    ser = connect(input('Enter a Serial Port to connect to:'))
-    help()
+        while(ser!=None):
+            comm = input("Awaiting command (enter help for list of commands):")
+            if(comm == 'arm'): arm(ser)
+            elif(comm == 'fire'): fire(ser)
+            elif(comm == 'abort'): abort(ser)
+            elif(comm == 'help'): help()
+            elif(comm == 'disconnect'): ser = disconnect(ser)
+            elif(comm == 'quit'): exit()
+            elif(comm == 'hex'): readHex(ser)
+            elif(comm == 'read'): readSerial(ser, data)
+            elif(comm[0:4] == 'baud'): setBaud(ser, int(comm[5:]))
+            elif(comm == 'fill open'): fillOpen(ser)
+            elif(comm == 'fill close'): fillClose(ser)
+            elif(comm == 'clear' or comm == 'cls'): print(chr(27) + "[2J")
+            else: print(comm,': Command Not Found')
+
+        ser = connect(input('Enter a Serial Port to connect to:'))
+        help()
