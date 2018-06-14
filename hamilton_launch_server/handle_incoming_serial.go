@@ -53,7 +53,6 @@ func handleIncomingSerial(hub *Hub) {
 }
 
 func handleIncomingSerialByte(b byte, hub *Hub) {
-	log.Println(serialBuffer)
 	serialBuffer = append(serialBuffer, b)
 
 	if serialBuffer[0] != accelGyroMagnetismHeaderByte &&
@@ -142,19 +141,19 @@ func buildAccelGyroMagnetismMsg(buf []byte) (AccelGyroMagnetismMsg, error) {
 	return AccelGyroMagnetismMsg{
 		Type: "accelGyroMagnetism",
 		Accel: Vec3{
-			X: int32(binary.LittleEndian.Uint32(buf[4 : 4+4])),
-			Y: int32(binary.LittleEndian.Uint32(buf[8 : 8+4])),
-			Z: int32(binary.LittleEndian.Uint32(buf[12 : 12+4])),
+			X: int32(binary.BigEndian.Uint32(buf[4 : 4+4])),
+			Y: int32(binary.BigEndian.Uint32(buf[8 : 8+4])),
+			Z: int32(binary.BigEndian.Uint32(buf[12 : 12+4])),
 		},
 		Gyro: Vec3{
-			X: int32(binary.LittleEndian.Uint32(buf[16 : 16+4])),
-			Y: int32(binary.LittleEndian.Uint32(buf[20 : 20+4])),
-			Z: int32(binary.LittleEndian.Uint32(buf[24 : 24+4])),
+			X: int32(binary.BigEndian.Uint32(buf[16 : 16+4])),
+			Y: int32(binary.BigEndian.Uint32(buf[20 : 20+4])),
+			Z: int32(binary.BigEndian.Uint32(buf[24 : 24+4])),
 		},
 		Magneto: Vec3{
-			X: int32(binary.LittleEndian.Uint32(buf[28 : 28+4])),
-			Y: int32(binary.LittleEndian.Uint32(buf[32 : 32+4])),
-			Z: int32(binary.LittleEndian.Uint32(buf[36 : 36+4])),
+			X: int32(binary.BigEndian.Uint32(buf[28 : 28+4])),
+			Y: int32(binary.BigEndian.Uint32(buf[32 : 32+4])),
+			Z: int32(binary.BigEndian.Uint32(buf[36 : 36+4])),
 		},
 	}, nil
 }
@@ -168,8 +167,8 @@ func buildBarometerMsg(buf []byte) (BarometerMsg, error) {
 	}
 	return BarometerMsg{
 		Type:        "barometer",
-		Pressure:    int32(binary.LittleEndian.Uint32(buf[4 : 4+4])),
-		Temperature: int32(binary.LittleEndian.Uint32(buf[8 : 8+4])),
+		Pressure:    int32(binary.BigEndian.Uint32(buf[4 : 4+4])),
+		Temperature: int32(binary.BigEndian.Uint32(buf[8 : 8+4])),
 	}, nil
 }
 
@@ -182,10 +181,10 @@ func buildGpsMsg(buf []byte) (GpsMsg, error) {
 	}
 	return GpsMsg{
 		Type:          "gps",
-		Altitude:      int32(binary.LittleEndian.Uint32(buf[4 : 4+4])),
-		EpochTimeMsec: int32(binary.LittleEndian.Uint32(buf[8 : 8+4])),
-		Latitude:      int32(binary.LittleEndian.Uint32(buf[12 : 12+4])),
-		Longitude:     int32(binary.LittleEndian.Uint32(buf[16 : 16+4])),
+		Altitude:      int32(binary.BigEndian.Uint32(buf[4 : 4+4])),
+		EpochTimeMsec: int32(binary.BigEndian.Uint32(buf[8 : 8+4])),
+		Latitude:      int32(binary.BigEndian.Uint32(buf[12 : 12+4])),
+		Longitude:     int32(binary.BigEndian.Uint32(buf[16 : 16+4])),
 	}, nil
 }
 
@@ -198,7 +197,7 @@ func buildOxidizerTankPressureMsg(buf []byte) (OxidizerTankPressureMsg, error) {
 	}
 	return OxidizerTankPressureMsg{
 		Type:     "oxidizerTankPressure",
-		Pressure: int32(binary.LittleEndian.Uint32(buf[4 : 4+4])),
+		Pressure: int32(binary.BigEndian.Uint32(buf[4 : 4+4])),
 	}, nil
 }
 
@@ -211,7 +210,7 @@ func buildCombustionChamberPressureMsg(buf []byte) (CombustionChamberPressureMsg
 	}
 	return CombustionChamberPressureMsg{
 		Type:     "combustionChamberPressure",
-		Pressure: int32(binary.LittleEndian.Uint32(buf[4 : 4+4])),
+		Pressure: int32(binary.BigEndian.Uint32(buf[4 : 4+4])),
 	}, nil
 }
 
@@ -224,7 +223,7 @@ func buildFlightPhaseMsg(buf []byte) (FlightPhaseMsg, error) {
 	}
 	return FlightPhaseMsg{
 		Type:        "flightPhase",
-		FlightPhase: int8(buf[1]),
+		FlightPhase: int8(buf[4]),
 	}, nil
 }
 
@@ -237,7 +236,7 @@ func buildVentStatusMsg(buf []byte) (VentStatusMsg, error) {
 	}
 	return VentStatusMsg{
 		Type:          "ventStatus",
-		VentValveOpen: int8(buf[1]) != 0,
+		VentValveOpen: int8(buf[4]) != 0,
 	}, nil
 }
 
@@ -250,6 +249,6 @@ func buildLoadCellDataMsg(buf []byte) (LoadCellDataMsg, error) {
 	}
 	return LoadCellDataMsg{
 		Type:      "loadCellData",
-		TotalMass: float64(binary.LittleEndian.Uint32(buf[4 : 4+4])),
+		TotalMass: float64(binary.BigEndian.Uint32(buf[4 : 4+4])),
 	}, nil
 }
