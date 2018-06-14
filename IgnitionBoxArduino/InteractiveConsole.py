@@ -79,7 +79,7 @@ def help():
     print('read\t\t reads the serial buffer and displays the latest data\n')
 
 def connect(port):
-    ser = serial.Serial(port, 115200, timeout=0)
+    ser = serial.Serial(port, 9600, timeout=0)
     time.sleep(2)
     return ser
 
@@ -101,36 +101,43 @@ def readSerial(ser,data):
     i = 0
     while(i<len(line)):
         if((line[i]==0x31) and (len(line)-i>=38)):
-            if(line[ij+38]==0x00):
+            if(line[i+37]==0x00):
                 for j in range(9):
                     data.imu[j] = int.from_bytes(line[i+1+(j*4):line[i+5+(j*4)]], byteorder=order, signed=True)
                 i+=38
+            else: i+=1
         elif((line[i]==0x32) and (len(line)-i>=10)):
-            if(line[i+10]==0x00):
+            if(line[i+9]==0x00):
                 data.bar[0] = int.from_bytes(line[i+1:i+5], byteorder=order, signed=True)
                 data.bar[1] = int.from_bytes(line[i+5:i+9], byteorder=order, signed=True)
                 i+=10
+            else: i+=1
         elif((line[i]==0x33) and (len(line)-i>=18)):
-            if(line[i+18]==0x00):
+            if(line[i+17]==0x00):
                 for j in range(9):
                     data.imu[j] = int.from_bytes(line[i+1+(j*4):i+5+(j*4)], byteorder=order, signed=True)
                 i+=18
+            else: i+=1
         elif((line[i]==0x34) and (len(line)-i>=6)):
-            if(line[i+6]==0x00):
+            if(line[i+5]==0x00):
                 data.oxi = int.from_bytes(line[i+1:i+4], byteorder=order, signed=True)
                 i+=6
+            else: i+=1
         elif((line[i]==0x35) and (len(line)-i>=6)):
-            if(line[i+6]==0x00):
+            if(line[i+5]==0x00):
                 data.cmb = int.from_bytes(line[i+1:i+4], byteorder=order, signed=True)
                 i+=6
+            else: i+=1
         elif((line[i]==0x36) and (len(line)-i>=3)):
-            if(line[i+3]==0x00):
+            if(line[i+2]==0x00):
                 data.phs = line[i+1]
                 i+=3
+            else: i+=1
         elif((line[i]==0x37) and (len(line)-i>=3)):
-            if(line[i+3]==0x00):
+            if(line[i+2]==0x00):
                 data.vnt = line[i+1]
                 i+=3
+            else: i+=1
         else: i+=1
     print(data)
 
