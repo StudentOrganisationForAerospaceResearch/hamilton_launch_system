@@ -2,13 +2,19 @@
     <v-container fluid grid-list-md>
         <h1 class="display-3">{{ title }}</h1>
         <v-layout row wrap>
-            <v-flex lg12>
+            <v-flex lg1>
+            </v-flex>
+            <v-flex lg10>
                 <videostream stream-file="high_quality.mjpg">
                 </videostream>
             </v-flex>
+            <v-flex lg1>
+            </v-flex>
         </v-layout>
         <v-layout row wrap>
-            <v-flex lg12>
+            <v-flex lg1>
+            </v-flex>
+            <v-flex lg10>
                 <v-layout row wrap>
                     <v-flex md6>
                         <videostream
@@ -21,6 +27,8 @@
                         </videostream>
                     </v-flex>
                 </v-layout>
+            </v-flex>
+            <v-flex lg1>
             </v-flex>
         </v-layout>
     </v-container>
