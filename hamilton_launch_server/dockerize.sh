@@ -75,10 +75,10 @@ run_ffmpeg() {
 
     # devices start from /dev/video0
     # target url starts with /feed1
-    for (( i=0; i<=$((num_devices-1)); i++)); do
+    for (( i=1; i<=$((num_devices-1)); i++)); do
         device_string="--device=/dev/video$((i)) "
         ffmpeg_command="ffmpeg -f video4linux2 -s 640x480 -r 30 \
-            -input_format mjpeg -i /dev/video$((i)) http://ffserver.livestream-net:8090/feed$((i+1)).ffm\
+            -input_format mjpeg -i /dev/video$((i)) http://ffserver.livestream-net:8090/feed$((i)).ffm\
             -nostdin -nostats"
 
         docker run --rm \
