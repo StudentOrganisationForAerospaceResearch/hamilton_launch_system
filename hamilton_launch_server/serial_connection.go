@@ -14,6 +14,7 @@ var serialConn *serial.Port
 var serialMutex sync.Mutex
 
 func setupSerialConnection(avionicsPort string, avionicsBaudrate int) {
+	logToFile("Starting serial connection")
 	c := &serial.Config{Name: avionicsPort, Baud: avionicsBaudrate, ReadTimeout: time.Second}
 	s, err := serial.OpenPort(c)
 	if err != nil {
@@ -43,6 +44,7 @@ func sendSerialArmCommand() {
 	defer serialMutex.Unlock()
 	log.Println("Sending Arm command")
 	serialConn.Write([]byte{0x21})
+	logToFile("Sent Arm Command 0x21")
 }
 
 func sendSerialLaunchCommand() {
@@ -50,6 +52,7 @@ func sendSerialLaunchCommand() {
 	defer serialMutex.Unlock()
 	log.Println("Sending Launch command")
 	serialConn.Write([]byte{0x20})
+	logToFile("Sent Launch Command 0x20")
 }
 
 func sendSerialFillValveOpenCommand() {
@@ -57,6 +60,7 @@ func sendSerialFillValveOpenCommand() {
 	defer serialMutex.Unlock()
 	log.Println("Sending Fill Valve Open command")
 	serialConn.Write([]byte{0x22})
+	logToFile("Sent Fill Valve Open Command 0x22")
 }
 
 func sendSerialFillValveCloseCommand() {
@@ -64,6 +68,7 @@ func sendSerialFillValveCloseCommand() {
 	defer serialMutex.Unlock()
 	log.Println("Sending Fill Valve Close command")
 	serialConn.Write([]byte{0x23})
+	logToFile("Sent Fill Valve Close Command 0x23")
 }
 
 func sendSerialAbortCommand() {
@@ -71,4 +76,20 @@ func sendSerialAbortCommand() {
 	defer serialMutex.Unlock()
 	log.Println("Sending Abort command")
 	serialConn.Write([]byte{0x2F})
+	logToFile("Sent Abort Command 0x2F")
+}
+
+func logToFile(line string) {
+	f, err := os.OpenFile("hamilton_launch_server.log", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(line); err != nil {
+		log.Println(err)
+		return
+	}
 }
