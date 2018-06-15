@@ -19,15 +19,18 @@
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
 #define FILL_RELAY RELAY_3
+#define PURGE_RELAY RELAY_4
+#define EJECT_RELAY RELAY_5
 
 #define FIRE_DURATION 10000
+#define PURGE_TIME 3000
 
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
 
 
 SoftwareSerial umbilical(SERIAL_RX, SERIAL_TX);
-//Adafruit_ADS1115 ads;
+Adafruit_ADS1115 ads;
 
 bool armed = false;
 bool fired  = false;
@@ -38,8 +41,11 @@ long int time;
 //This function impliments the arm command
 //The ARM relay is opened
 void arm(){
-  umbilical.write((byte) 0x21);
-  umbilical.write((byte) 0x00);
+  digitalWrite(FILL_RELAY, RELAY_OFF);
+  digitalWrite(PURGE_RELAY, RELAY_ON);
+  delay(PURGE_TIME);
+  digitalWrite(PURGE_RELAY, RELAY_OFF);
+  digitalWrite(EJECT_RELAY, RELAY_ON);
   digitalWrite(ARM_RELAY, RELAY_ON);
   armed = true;
   Serial.read(); //Read the remaining byte of the command
@@ -136,6 +142,9 @@ void loop() {
   if(millis()-time>1000){
     digitalWrite(LED,0x1^digitalRead(LED));
     time = millis();
+
+    umbilical.write((byte) 0x46);
+    umbilical.write((byte) 0x00);
   }
   
   
