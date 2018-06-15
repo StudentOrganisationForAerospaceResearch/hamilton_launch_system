@@ -1,7 +1,7 @@
 <template>
     <v-container>
       <v-layout>
-        <img v-bind:src="'http://' + local_url + ':8090/' + streamFile" class="img-responsive" style="width:100%">
+        <img v-bind:src="'http://' + local_url + ':8090/' + streamFile" class="img-responsive" style="width:100%; height: 100%">
 
         <!-- change localhost to the host's ip-->
       </v-layout>
