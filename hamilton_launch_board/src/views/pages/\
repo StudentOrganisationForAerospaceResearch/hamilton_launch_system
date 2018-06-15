@@ -2,26 +2,24 @@
     <v-container fluid grid-list-md>
         <h1 class="display-3">{{ title }}</h1>
         <v-layout row wrap>
-            <v-flex lg12>
+            <v-flex lg6>
                 <videostream stream-file="high_quality.mjpg">
                 </videostream>
             </v-flex>
         </v-layout>
         <v-layout row wrap>
-            <v-flex lg12>
-                <v-layout row wrap>
-                    <v-flex md6>
-                        <videostream
-                          stream-file="low_quality1.mjpg">
-                        </videostream>
-                    </v-flex>
-                    <v-flex md6>
-                        <videostream
-                          stream-file="low_quality2.mjpg">
-                        </videostream>
-                    </v-flex>
-                </v-layout>
-            </v-flex>
+            <v-layout row wrap>
+                <v-flex md6>
+                    <videostream
+                      stream-file="low_quality1.mjpg">
+                    </videostream>
+                </v-flex>
+                <v-flex md6>
+                    <videostream
+                      stream-file="low_quality2.mjpg">
+                    </videostream>
+                </v-flex>
+            </v-layout>
         </v-layout>
     </v-container>
 </template>
