@@ -36,6 +36,8 @@
 #define LOAD_CELL_A 1
 #define LOAD_CELL_B 0
 
+#define LOAD_CELL_BUFFER_SIZE 10
+
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
 
@@ -47,6 +49,11 @@ bool armed = false;
 bool fired  = false;
 long int heartTime;
 long int loadTime;
+
+int32_t loadBuffer[LOAD_CELL_BUFFER_SIZE];
+long int loadTotal;
+int loadPtr;
+
 
 //This function impliments the arm command
 //The ARM relay is opened
@@ -99,6 +106,15 @@ void closeFillValve(){
   Serial.read();
 }
 
+void readLoadCell(){
+    //Calculate the load Cell packet
+    loadTotal-=loadBuffer[loadPtr];
+    loadBuffer[loadPtr] = ads.readADC_Differential_0_1();
+    loadTotal+=loadBuffer[loadPtr];
+    loadPtr = (loadPtr+1) % LOAD_CELL_BUFFER_SIZE;
+    
+}
+
 void setup() {
   
   //Set all of the relay controls to output
@@ -122,7 +138,7 @@ void setup() {
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
 
-  //ads.setGain(GAIN_ONE);
+  ads.setGain(GAIN_ONE);
   ads.begin();
   
   //Initialize the USB Serial Connection
@@ -137,33 +153,37 @@ void setup() {
 
   heartTime = 0;
   loadTime = 0;
+
+  for(int i=0; i<LOAD_CELL_BUFFER_SIZE; i++) loadBuffer[i]=0;
+  loadPtr=0;
+  loadTotal=0;
 }
 
 
 void loop() {
 
-  int32_t loadCell=0;
-  loadCell += ads.readADC_Differential_0_1();
-
+  
   //Feed all commands from avionics to the ground station
   if(umbilical.available()){
+    while(umbilical.available()){
       Serial.write(umbilical.read());
+    }
   }
-  loadCell += ads.readADC_Differential_0_1();
+  
 
 
   //Recive and parse commands from ground station
   if(Serial.available()){
-    byte header = Serial.read();
-    if(header == 0x21) arm();
-    else if(header == 0x20) fire();
-    else if(header == 0x2F) abortCommand();
-    else if(header == 0x22) openFillValve();
-    else if(header == 0x23) closeFillValve();
-    else umbilical.write(header);
+    while(Serial.available()){
+      byte header = Serial.read();
+      if(header == 0x21) arm();
+      else if(header == 0x20) fire();
+      else if(header == 0x2F) abortCommand();
+      else if(header == 0x22) openFillValve();
+      else if(header == 0x23) closeFillValve();
+      else umbilical.write(header);
+    }
   }
-  loadCell += ads.readADC_Differential_0_1();
-
 
   //Check for the Avionics reset
   if(digitalRead(AVIONICS_RESET)==LOW){
@@ -175,11 +195,11 @@ void loop() {
       umbilical.write((byte) 0x00); 
     }
   }
-  loadCell += ads.readADC_Differential_0_1();
 
   //Send a Heartbeat packet
   if(millis()-heartTime >= HEART_BEAT_DELAY){
     if(analogRead(0)>350){  //If the voltage is above nominal levels
+      readLoadCell();
       //Send a heartbeat packet
       umbilical.write((byte) 0x46);
       umbilical.write((byte) 0x00);
@@ -195,9 +215,9 @@ void loop() {
   //Send a Load Cell packet
   if(millis()-loadTime>LOAD_CELL_TIME_DELAY){
     if(analogRead(0)>350){  //If the voltage is above nominal levels
-      //Calculate the load Cell packet
-      loadCell += ads.readADC_Differential_0_1();
-      loadCell = abs((LOAD_CELL_A * loadCell) + LOAD_CELL_B);
+      readLoadCell();
+      
+      int32_t loadCell = (int32_t) (loadTotal/LOAD_CELL_BUFFER_SIZE);
       
       //Send the loadcell packet
       for(int i=0; i<4; i++) Serial.write(0x40);
@@ -207,6 +227,7 @@ void loop() {
       Serial.write(loadCell && 0xff);     
       Serial.write((byte) 0x00);
       
+
     }
     loadTime=millis();
 
