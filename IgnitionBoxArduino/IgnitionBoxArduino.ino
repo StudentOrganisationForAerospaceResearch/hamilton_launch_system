@@ -142,7 +142,7 @@ void setup() {
 
 void loop() {
 
-  int loadCell=0;
+  int32_t loadCell=0;
   loadCell += ads.readADC_Differential_0_1();
 
   //Feed all commands from avionics to the ground station
@@ -200,8 +200,11 @@ void loop() {
       loadCell = abs((LOAD_CELL_A * loadCell) + LOAD_CELL_B);
       
       //Send the loadcell packet
-      Serial.write(0x40404040);
-      Serial.write(loadCell);
+      for(int i=0; i<4; i++) Serial.write(0x40);
+      Serial.write((loadCell>>24) && 0xff); 
+      Serial.write((loadCell>>16) && 0xff);
+      Serial.write((loadCell>>8) && 0xff);
+      Serial.write(loadCell && 0xff);     
       Serial.write((byte) 0x00);
       
     }
