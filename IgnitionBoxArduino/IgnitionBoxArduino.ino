@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-//#include <Wire.h>
+#include <Wire.h>
 #include <Adafruit_ADS1015.h>
 
 
@@ -23,9 +23,18 @@
 #define PURGE_RELAY RELAY_3
 #define EJECT_RELAY RELAY_6
 
+
+#define HEART_BEAT_DELAY 5000
+#define LOAD_CELL_TIME_DELAY 500
+
 #define FIRE_DURATION 10000
 #define PURGE_TIME 3000
 #define EJECT_TIME 1000
+
+
+//Load Cell constants
+#define LOAD_CELL_A 1
+#define LOAD_CELL_B 0
 
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
@@ -36,7 +45,8 @@ Adafruit_ADS1115 ads;
 
 bool armed = false;
 bool fired  = false;
-long int time;
+long int heartTime;
+long int loadTime;
 
 //This function impliments the arm command
 //The ARM relay is opened
@@ -111,6 +121,9 @@ void setup() {
 
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
+
+  //ads.setGain(GAIN_ONE);
+  ads.begin();
   
   //Initialize the USB Serial Connection
   Serial.begin(USB_SERIAL_BAUD);
@@ -122,16 +135,24 @@ void setup() {
   umbilical.begin(UMB_SERIAL_BAUD);
   umbilical.write((byte) 0);
 
-  time = 0;
+  heartTime = 0;
+  loadTime = 0;
 }
 
 
 void loop() {
-  
+
+  int loadCell=0;
+  loadCell += ads.readADC_Differential_0_1();
+
+  //Feed all commands from avionics to the ground station
   if(umbilical.available()){
       Serial.write(umbilical.read());
   }
-  
+  loadCell += ads.readADC_Differential_0_1();
+
+
+  //Recive and parse commands from ground station
   if(Serial.available()){
     byte header = Serial.read();
     if(header == 0x21) arm();
@@ -141,26 +162,51 @@ void loop() {
     else if(header == 0x23) closeFillValve();
     else umbilical.write(header);
   }
+  loadCell += ads.readADC_Differential_0_1();
 
+
+  //Check for the Avionics reset
   if(digitalRead(AVIONICS_RESET)==LOW){
-    abortCommand();
-    delay(100);
-    umbilical.write((byte) 0x45);
-    umbilical.write((byte) 0x00);  
+    delay(100); //Debounce delay
+    if(digitalRead(AVIONICS_RESET)==LOW){
+      abortCommand();
+      delay(100);
+      umbilical.write((byte) 0x45);
+      umbilical.write((byte) 0x00); 
+    }
   }
+  loadCell += ads.readADC_Differential_0_1();
 
-  
-  if(millis()-time>1000){
+  //Send a Heartbeat packet
+  if(millis()-heartTime >= HEART_BEAT_DELAY){
     if(analogRead(0)>350){  //If the voltage is above nominal levels
       //Send a heartbeat packet
       umbilical.write((byte) 0x46);
       umbilical.write((byte) 0x00);
-      digitalWrite(LED,0x1^digitalRead(LED));      
+      digitalWrite(LED,0x1^digitalRead(LED));
     }
     else{
       digitalWrite(LED,HIGH);
     }
-    time = millis();
+    heartTime = millis();
+  }
+
+
+  //Send a Load Cell packet
+  if(millis()-loadTime>LOAD_CELL_TIME_DELAY){
+    if(analogRead(0)>350){  //If the voltage is above nominal levels
+      //Calculate the load Cell packet
+      loadCell += ads.readADC_Differential_0_1();
+      loadCell = abs((LOAD_CELL_A * loadCell) + LOAD_CELL_B);
+      
+      //Send the loadcell packet
+      Serial.write(0x40404040);
+      Serial.write(loadCell);
+      Serial.write((byte) 0x00);
+      
+    }
+    loadTime=millis();
+
 
   }
 
