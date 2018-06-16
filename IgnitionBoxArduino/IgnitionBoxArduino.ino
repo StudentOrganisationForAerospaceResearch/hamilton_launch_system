@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 //#include <Wire.h>
-//#include <Adafruit_ADS1015.h>
+#include <Adafruit_ADS1015.h>
 
 
 #define RELAY_1    2
@@ -11,19 +11,21 @@
 #define RELAY_6    7
 #define SERIAL_TX  11
 #define SERIAL_RX  10
+#define AVIONICS_RESET 12
 #define LED        13
 
-#define USB_SERIAL_BAUD 115200
+#define USB_SERIAL_BAUD 9600
 #define UMB_SERIAL_BAUD 9600
 
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
-#define FILL_RELAY RELAY_3
-#define PURGE_RELAY RELAY_4
-#define EJECT_RELAY RELAY_5
+#define FILL_RELAY RELAY_4
+#define PURGE_RELAY RELAY_3
+#define EJECT_RELAY RELAY_6
 
 #define FIRE_DURATION 10000
 #define PURGE_TIME 3000
+#define EJECT_TIME 1000
 
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
@@ -36,8 +38,6 @@ bool armed = false;
 bool fired  = false;
 long int time;
 
-
-
 //This function impliments the arm command
 //The ARM relay is opened
 void arm(){
@@ -46,6 +46,8 @@ void arm(){
   delay(PURGE_TIME);
   digitalWrite(PURGE_RELAY, RELAY_OFF);
   digitalWrite(EJECT_RELAY, RELAY_ON);
+  delay(EJECT_TIME);
+  digitalWrite(EJECT_RELAY, RELAY_OFF);
   digitalWrite(ARM_RELAY, RELAY_ON);
   armed = true;
   Serial.read(); //Read the remaining byte of the command
@@ -96,6 +98,8 @@ void setup() {
   pinMode(RELAY_4, OUTPUT);
   pinMode(RELAY_5, OUTPUT);
   pinMode(RELAY_6, OUTPUT);
+
+  pinMode(AVIONICS_RESET, INPUT_PULLUP);
   
   //Ensure the relays are closed
   digitalWrite(RELAY_1, RELAY_OFF);
@@ -138,14 +142,29 @@ void loop() {
     else umbilical.write(header);
   }
 
+  if(digitalRead(AVIONICS_RESET)==LOW){
+    abortCommand();
+    delay(100);
+    umbilical.write((byte) 0x45);
+    umbilical.write((byte) 0x00);  
+  }
+
   
   if(millis()-time>1000){
-    digitalWrite(LED,0x1^digitalRead(LED));
+    if(analogRead(0)>350){  //If the voltage is above nominal levels
+      //Send a heartbeat packet
+      umbilical.write((byte) 0x46);
+      umbilical.write((byte) 0x00);
+      digitalWrite(LED,0x1^digitalRead(LED));      
+    }
+    else{
+      digitalWrite(LED,HIGH);
+    }
     time = millis();
 
-    umbilical.write((byte) 0x46);
-    umbilical.write((byte) 0x00);
   }
+
+  
   
   
   
