@@ -12,7 +12,7 @@ const fillingInfo = {
       state.fillValveOpen = newFillValveStatus.fillValveOpen
     },
     setTotalMass (state, newTotalMass) {
-      state.totalMass = newTotalMass.totalMass.toFixed(1)
+      state.totalMass = newTotalMass.totalMass.toFixed(3)
     }
   }
 }
