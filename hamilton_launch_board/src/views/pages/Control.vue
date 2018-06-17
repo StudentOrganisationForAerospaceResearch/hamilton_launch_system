@@ -13,6 +13,7 @@
               name="input-1"
               label="Arm Code"
               color="yellow"
+              :type="'password'"
               v-model="armCode"
             ></v-text-field>
             <v-btn large
@@ -79,6 +80,7 @@
               name="input-1"
               label="Launch Code"
               color="yellow"
+              :type="'password'"
               v-model="launchCode"
             ></v-text-field>
             <v-btn large
