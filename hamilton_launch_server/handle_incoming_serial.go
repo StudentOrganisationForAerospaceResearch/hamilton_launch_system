@@ -60,7 +60,7 @@ func handleIncomingSerial(hub *Hub) {
 		})
 		if err != nil {
 			log.Println(err)
-			return false
+			return
 		}
 	}
 }
@@ -130,7 +130,7 @@ func handleIncomingSerialByte(b byte, hub *Hub) bool {
 		if serialBuffer[len(serialBuffer)-1] != 0 {
 			//something is wrong
 			serialBuffer = []byte{}
-			return
+			return false
 		}
 
 		serialBuffer = []byte{}
@@ -146,9 +146,9 @@ func handleIncomingSerialByte(b byte, hub *Hub) bool {
 			log.Println(err)
 			return false
 		}
-
-		return true
 	}
+
+	return true
 }
 
 func buildAccelGyroMagnetismMsg(buf []byte) (AccelGyroMagnetismMsg, error) {
@@ -269,6 +269,6 @@ func buildLoadCellDataMsg(buf []byte) (LoadCellDataMsg, error) {
 	}
 	return LoadCellDataMsg{
 		Type:      "loadCellData",
-		TotalMass: float64(binary.BigEndian.Int32(buf[4 : 4+4])) / 1000,
+		TotalMass: float64(binary.BigEndian.Uint32(buf[4:4+4])) / 1000,
 	}, nil
 }

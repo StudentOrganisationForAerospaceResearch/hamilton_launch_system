@@ -16,6 +16,10 @@ func sendSerialLaunchCommand() {
 	log.Println("Sending Launch command")
 }
 
+func sendSerialPulseVentValveCommand() {
+	log.Println("Sending Pulse Vent Valve command")
+}
+
 func sendSerialFillValveOpenCommand() {
 	log.Println("Sending Fill Valve Open command")
 }

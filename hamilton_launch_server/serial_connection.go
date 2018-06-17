@@ -4,9 +4,9 @@ package main
 
 import (
 	"log"
+	"os"
 	"sync"
 	"time"
-	"os"
 
 	"github.com/tarm/serial"
 )
@@ -56,6 +56,14 @@ func sendSerialLaunchCommand() {
 	logToFile("Sent Launch Command 0x20")
 }
 
+func sendSerialPulseVentValveCommand() {
+	serialMutex.Lock()
+	defer serialMutex.Unlock()
+	log.Println("Sending Pulse Vent Valve command")
+	serialConn.Write([]byte{0x24})
+	logToFile("Sent Pulse Vent Valve Command 0x24")
+}
+
 func sendSerialFillValveOpenCommand() {
 	serialMutex.Lock()
 	defer serialMutex.Unlock()
@@ -89,7 +97,7 @@ func logToFile(line string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString(line); err != nil {
+	if _, err = f.WriteString(line + "\n"); err != nil {
 		log.Println(err)
 		return
 	}

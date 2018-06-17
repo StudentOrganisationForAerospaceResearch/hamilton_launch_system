@@ -20,6 +20,8 @@ func handleFillControl(code string, cmd string, hub *Hub) {
 	} else if cmd == "closeFillValve" {
 		msg.FillValveOpen = false
 		sendSerialFillValveCloseCommand()
+	} else if cmd == "pulseVentValve" {
+		sendSerialPulseVentValveCommand()
 	}
 
 	err := hub.sendMsg(msg)
