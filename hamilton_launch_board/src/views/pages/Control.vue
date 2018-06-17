@@ -225,6 +225,7 @@ export default {
         command: 'abort',
         code: this.abortCode
       })
+      this.abortCode = ''
     },
     isMobile: function () {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
