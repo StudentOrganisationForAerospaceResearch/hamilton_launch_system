@@ -37,36 +37,42 @@
           <div class="fill-status">
             <h1 class="headline">Vent Valve Status</h1>
             <div class="display-1 status-content" v-show="ventValveOpen">
-              <h2 class="display-1">OPEN</h2>
+              <h2 class="display-1 valve-status">OPEN</h2>
               <plus-network-icon />
             </div>
             <div class="display-1 status-content closed-valve" v-show="!ventValveOpen">
-              <h2 class=" display-1">CLOSED</h2>
+              <h2 class="display-1 valve-status">CLOSED</h2>
               <close-network-icon/>
             </div>
-            <h1 class="headline">Fill Valve Status</h1>
+            <v-btn large
+              @mouseup="sendPulseVentValveCommand">
+              PULSE VENT VALVE
+            </v-btn>
+            <h1 class="headline fill-valve-status">Fill Valve Status</h1>
             <div class="display-1 status-content" v-show="fillValveOpen">
-              <h2 class="display-1">OPEN</h2>
+              <h2 class="display-1 valve-status">OPEN</h2>
               <plus-network-icon />
             </div>
             <div class="display-1 status-content closed-valve" v-show="!fillValveOpen">
-              <h2 class=" display-1">CLOSED</h2>
+              <h2 class="display-1 valve-status">CLOSED</h2>
               <close-network-icon/>
             </div>
+            <v-btn large
+              @mouseup="sendOpenFillValveCommand"
+              v-show="!fillValveOpen">
+              OPEN FILL VALVE
+            </v-btn>
+            <v-btn large
+              @mouseup="sendCloseFillValveCommand"
+              v-show="fillValveOpen">
+              CLOSE FILL VALVE
+            </v-btn>
             <v-text-field
-              name="input-1"
-              label="Fill Control Code"
+              type="password"
+              label="Valve Control Code"
               color="yellow"
               v-model="fillControlCode"
             ></v-text-field>
-            <div>
-              <v-btn large @mouseup="sendOpenFillValveCommand">
-                OPEN
-              </v-btn>
-              <v-btn large @mouseup="sendCloseFillValveCommand">
-                CLOSE
-              </v-btn>
-            </div>
           </div>
         </div>
       </v-card>
@@ -105,6 +111,13 @@ export default {
     CloseNetworkIcon
   },
   methods: {
+    sendPulseVentValveCommand: function (event) {
+      this.$socket.sendObj({
+        type: 'fillControl',
+        command: 'pulseVentValve',
+        code: this.fillControlCode
+      })
+    },
     sendOpenFillValveCommand: function (event) {
       this.$socket.sendObj({
         type: 'fillControl',
@@ -222,9 +235,18 @@ export default {
   margin-bottom: 1rem;
 }
 
+.fill-valve-status {
+  margin-top: 1rem;
+}
+
 .status-content {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.valve-status {
+  margin-bottom: 0;
 }
 
 .closed-valve {
