@@ -4,7 +4,7 @@ const combustionChamberPressure = {
   },
   mutations: {
     setCombustionChamberPressure (state, newCombustionChamberPressure) {
-      state.pressure = newCombustionChamberPressure.pressure.toFixed(1)
+      state.pressure = (newCombustionChamberPressure.pressure / 1000).toFixed(3)
     }
   }
 }
