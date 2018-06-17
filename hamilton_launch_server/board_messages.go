@@ -56,3 +56,8 @@ type LoadCellDataMsg struct {
 	Type      string  `json:"type"`
 	TotalMass float64 `json:"totalMass"`
 }
+
+type LastReceivedSerialMsg struct {
+	Type         string  `json:"type"`
+	LastReceived float64 `json:"lastReceived"`
+}

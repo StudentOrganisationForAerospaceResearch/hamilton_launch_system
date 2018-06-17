@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"time"
 )
 
 const (
@@ -38,6 +39,7 @@ var (
 
 func handleIncomingSerial(hub *Hub) {
 	buf := make([]byte, 128)
+	lastReceived := time.Now()
 
 	for {
 		n, err := serialConn.Read(buf)
@@ -47,12 +49,23 @@ func handleIncomingSerial(hub *Hub) {
 		}
 
 		for i := 0; i < n; i++ {
-			handleIncomingSerialByte(buf[i], hub)
+			if handleIncomingSerialByte(buf[i], hub) {
+				lastReceived = time.Now()
+			}
+		}
+
+		err = hub.sendMsg(LastReceivedSerialMsg{
+			Type:         "lastReceivedSerial",
+			LastReceived: time.Now().Sub(lastReceived).Seconds(),
+		})
+		if err != nil {
+			log.Println(err)
+			return false
 		}
 	}
 }
 
-func handleIncomingSerialByte(b byte, hub *Hub) {
+func handleIncomingSerialByte(b byte, hub *Hub) bool {
 	serialBuffer = append(serialBuffer, b)
 
 	if serialBuffer[0] != accelGyroMagnetismHeaderByte &&
@@ -64,21 +77,21 @@ func handleIncomingSerialByte(b byte, hub *Hub) {
 		serialBuffer[0] != ventStatusHeaderByte &&
 		serialBuffer[0] != loadCellDataHeaderByte {
 		serialBuffer = []byte{}
-		return
+		return false
 	} else if len(serialBuffer) == 2 {
 		if serialBuffer[0] != serialBuffer[1] {
 			serialBuffer = []byte{b}
-			return
+			return false
 		}
 	} else if len(serialBuffer) == 3 {
 		if serialBuffer[1] != serialBuffer[2] {
 			serialBuffer = []byte{b}
-			return
+			return false
 		}
 	} else if len(serialBuffer) == 4 {
 		if serialBuffer[2] != serialBuffer[3] {
 			serialBuffer = []byte{b}
-			return
+			return false
 		}
 	} else {
 		var msg interface{}
@@ -111,23 +124,24 @@ func handleIncomingSerialByte(b byte, hub *Hub) {
 			msg, err = buildLoadCellDataMsg(serialBuffer)
 		} else {
 			// still reading message
-			return
+			return false
 		}
 
 		serialBuffer = []byte{}
 
 		if err != nil {
 			log.Println("Failed to parse avionics report: %x", serialBuffer)
-			return
+			return false
 		}
 
 		log.Printf("Sending Serial Report")
 		err = hub.sendMsg(msg)
 		if err != nil {
 			log.Println(err)
-			return
+			return false
 		}
 
+		return true
 	}
 }
 

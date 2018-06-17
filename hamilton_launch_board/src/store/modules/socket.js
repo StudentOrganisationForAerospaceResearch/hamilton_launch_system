@@ -36,6 +36,9 @@ const socket = {
         case 'flightPhase':
           store.commit('setFlightPhase', message)
           break
+        case 'lastReceivedSerial':
+          store.commit('setLastReceivedSerial', message)
+          break
         case 'launchControlInfo':
           store.commit('setLaunchControlInfo', message)
           break

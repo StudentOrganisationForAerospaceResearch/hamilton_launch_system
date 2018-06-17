@@ -7,6 +7,7 @@ import gps from './modules/gps'
 import oxidizerTankPressure from './modules/oxidizerTankPressure'
 import combustionChamberPressure from './modules/combustionChamberPressure'
 import flightPhase from './modules/flightPhase'
+import lastReceivedSerial from './modules/lastReceivedSerial'
 import fillingInfo from './modules/fillingInfo'
 import launchControlInfo from './modules/launchControlInfo'
 import socket from './modules/socket'
@@ -24,6 +25,7 @@ const store = new Vuex.Store({
     oxidizerTankPressure,
     combustionChamberPressure,
     flightPhase,
+    lastReceivedSerial,
     fillingInfo,
     launchControlInfo,
     socket

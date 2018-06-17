@@ -25,6 +25,14 @@
             <v-list-tile-content class="subheading">Flight Phase</v-list-tile-content>
             <v-list-tile-content class="align-end subheading">{{ flightPhase.phase }}</v-list-tile-content>
           </v-list-tile>
+          <v-list-tile>
+            <v-list-tile-content class="subheading">Last Received</v-list-tile-content>
+            <v-list-tile-content
+              class="align-end subheading"
+              v-bind:class="{ overtime: lastReceivedSerial.lastReceived > 10 }">
+              {{ lastReceivedSerial.lastReceived }} sec
+            </v-list-tile-content>
+          </v-list-tile>
         </v-list>
       </v-card>
       <v-card class="avionics-card" raised>
@@ -71,6 +79,7 @@ export default {
       barometer: state => state.barometer,
       combustionChamberPressure: state => state.combustionChamberPressure,
       flightPhase: state => state.flightPhase,
+      lastReceivedSerial: state => state.lastReceivedSerial,
       gps: state => state.gps
     })
   }
@@ -99,6 +108,10 @@ export default {
 .avionics-card {
   width: 30em;
   margin: 9px;
+}
+
+.overtime {
+  color: red;
 }
 
 </style>

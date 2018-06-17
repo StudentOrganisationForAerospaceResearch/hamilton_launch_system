@@ -9,6 +9,7 @@ import (
 func handleIncomingSerial(hub *Hub) {
 	tick := time.NewTicker(time.Second)
 	counter := 0.1
+	lastReceived := time.Now()
 
 	for {
 		<-tick.C // Block until next cycle
@@ -43,6 +44,14 @@ func handleIncomingSerial(hub *Hub) {
 			log.Println(err)
 		}
 		err = hub.sendMsg(buildLoadCellDataMsg(counter))
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = hub.sendMsg(LastReceivedSerialMsg{
+			Type:         "lastReceivedSerial",
+			LastReceived: time.Now().Sub(lastReceived).Seconds(),
+		})
 		if err != nil {
 			log.Println(err)
 		}
