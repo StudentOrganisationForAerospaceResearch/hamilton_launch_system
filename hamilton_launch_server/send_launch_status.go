@@ -44,7 +44,8 @@ var (
 
 const (
 	counterMax  = 100
-	counterTick = 10
+	fastCounterTick = 100
+	slowCounterTick = 10
 )
 
 func sendLaunchStatus(hub *Hub, interval time.Duration) {
@@ -69,28 +70,29 @@ func updateLaunchCounters() {
 	for {
 		<-tick.C // Block until next cycle
 		if launchStatus.softwareArmActive {
-			launchStatus.SoftwareArmCounter += counterTick
+			launchStatus.SoftwareArmCounter += fastCounterTick
 			log.Println("SoftwareArmCounter", launchStatus.SoftwareArmCounter)
 		} else if launchStatus.ArmCounter < counterMax {
 			launchStatus.SoftwareArmCounter = 0
 		}
 
 		if launchStatus.launchSystemsArmActive {
-			launchStatus.LaunchSystemsArmCounter += counterTick
+			launchStatus.LaunchSystemsArmCounter += fastCounterTick
 		} else if launchStatus.ArmCounter < counterMax {
 			launchStatus.LaunchSystemsArmCounter = 0
 		}
 
 		if launchStatus.vpRocketsArmActive {
-			launchStatus.VPRocketsArmCounter += counterTick
+			launchStatus.VPRocketsArmCounter += fastCounterTick
 		} else if launchStatus.ArmCounter < counterMax {
 			launchStatus.VPRocketsArmCounter = 0
 		}
 
-		if launchStatus.SoftwareArmCounter >= counterMax &&
-			launchStatus.LaunchSystemsArmCounter >= counterMax &&
-			launchStatus.VPRocketsArmCounter >= counterMax {
-			launchStatus.ArmCounter += counterTick
+		if launchStatus.SoftwareArmCounter > counterMax &&
+			launchStatus.LaunchSystemsArmCounter > counterMax &&
+			launchStatus.VPRocketsArmCounter > counterMax {
+
+			launchStatus.ArmCounter += slowCounterTick
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.ArmCounter = 0
 		}
@@ -108,33 +110,33 @@ func updateLaunchCounters() {
 		}
 
 		if launchStatus.softwareLaunchActive {
-			launchStatus.SoftwareLaunchCounter += counterTick
+			launchStatus.SoftwareLaunchCounter += fastCounterTick
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.SoftwareLaunchCounter = 0
 		}
 
 		if launchStatus.launchSystemsLaunchActive {
-			launchStatus.LaunchSystemsLaunchCounter += counterTick
+			launchStatus.LaunchSystemsLaunchCounter += fastCounterTick
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.LaunchSystemsLaunchCounter = 0
 		}
 
 		if launchStatus.vpRocketsLaunchActive {
-			launchStatus.VPRocketsLaunchCounter += counterTick
+			launchStatus.VPRocketsLaunchCounter += fastCounterTick
 		} else if launchStatus.LaunchCounter < counterMax {
 			launchStatus.VPRocketsLaunchCounter = 0
 		}
 
-		if launchStatus.SoftwareLaunchCounter >= counterMax &&
-			launchStatus.LaunchSystemsLaunchCounter >= counterMax &&
-			launchStatus.VPRocketsLaunchCounter >= counterMax {
+		if launchStatus.SoftwareLaunchCounter > counterMax &&
+			launchStatus.LaunchSystemsLaunchCounter > counterMax &&
+			launchStatus.VPRocketsLaunchCounter > counterMax {
 
-			launchStatus.LaunchCounter += counterTick
+			launchStatus.LaunchCounter += slowCounterTick
 		} else if launchStatus.Countdown > 0 {
 			launchStatus.LaunchCounter = 0
 		}
 
-		if launchStatus.LaunchCounter >= counterMax && launchStatus.Countdown > 0 {
+		if launchStatus.LaunchCounter > counterMax && launchStatus.Countdown > 0 {
 			launchStatus.Countdown--
 			if launchStatus.Countdown <= 0 && !launchStatus.launched {
 				launchStatus.launched = true

@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 	"time"
+	"os"
 
 	"github.com/tarm/serial"
 )
