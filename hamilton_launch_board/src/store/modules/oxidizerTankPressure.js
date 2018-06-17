@@ -4,7 +4,7 @@ const oxidizerTankPressure = {
   },
   mutations: {
     setOxidizerTankPressure (state, newOxidizerTankPressure) {
-      state.pressure = newOxidizerTankPressure.pressure.toFixed(1)
+      state.pressure = newOxidizerTankPressure.pressure.toFixed(0)
     }
   }
 }

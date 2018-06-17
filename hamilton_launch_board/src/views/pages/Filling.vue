@@ -23,7 +23,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Rocket Mass</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ ROCKET_MASS }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ ROCKET_MASS_KG.toFixed(1) }} kg</v-list-tile-content>
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Mass</v-list-tile-content>
@@ -31,7 +31,7 @@
             </v-list-tile>
             <v-list-tile class="mass-item">
               <v-list-tile-content class="subheading">Oxidizer Target</v-list-tile-content>
-              <v-list-tile-content class="align-end subheading mass">{{ TARGET_OXIDIZER_MASS }} kg</v-list-tile-content>
+              <v-list-tile-content class="align-end subheading mass">{{ TARGET_OXIDIZER_MASS_KG.toFixed(1) }} kg</v-list-tile-content>
             </v-list-tile>
           </v-list>
           <div class="fill-status">
@@ -78,8 +78,8 @@
         <v-divider></v-divider>
         <div class="filling-card-content filling-card-content-bar">
           <div class="conditions-label">
-            <p class="title">{{ pressure }} kPa</p>
-            <p class="title max">MAX {{ MAX_PRESSURE }} kPa</p>
+            <p class="title">{{ pressure }} psi</p>
+            <p class="title max">MAX {{ MAX_PRESSURE_PSI }} psi</p>
           </div>
           <v-progress-linear
             :value="pressurePercentage"
@@ -122,10 +122,9 @@ export default {
   },
   data: function () {
     return {
-      ROCKET_MASS: 80.12,
-      TARGET_OXIDIZER_MASS: 21.2,
-      MAX_PRESSURE: 50.2,
-      MAX_TEMPERATURE: 32.2,
+      ROCKET_MASS_KG: 45,
+      TARGET_OXIDIZER_MASS_KG: 19,
+      MAX_PRESSURE_PSI: 1020,
       fillControlCode: ''
     }
   },
@@ -139,24 +138,24 @@ export default {
     oxidizerMass: function () {
       if (this.totalMass === '-') {
         return '-'
-      } else if (this.totalMass < this.ROCKET_MASS) {
+      } else if (this.totalMass < this.ROCKET_MASS_KG) {
         return 0
       }
-      return (this.totalMass - this.ROCKET_MASS).toFixed(2)
+      return (this.totalMass - this.ROCKET_MASS_KG).toFixed(1)
     },
     fillProgress: function () {
       if (this.totalMass === '-') {
         return 0
-      } else if (this.totalMass < this.ROCKET_MASS) {
+      } else if (this.totalMass < this.ROCKET_MASS_KG) {
         return 0
       }
-      return (this.oxidizerMass / this.TARGET_OXIDIZER_MASS) * 100
+      return (this.oxidizerMass / this.TARGET_OXIDIZER_MASS_KG) * 100
     },
     pressurePercentage: function () {
       if (this.pressure === '-') {
         return 0
       }
-      return (this.pressure / this.MAX_PRESSURE) * 100
+      return (this.pressure / this.MAX_PRESSURE_PSI) * 100
     }
   }
 }
