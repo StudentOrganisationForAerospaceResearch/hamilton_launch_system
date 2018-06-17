@@ -111,7 +111,7 @@ export default {
 }
 
 .overtime {
-  color: red;
+  color: #F44336;
 }
 
 </style>
