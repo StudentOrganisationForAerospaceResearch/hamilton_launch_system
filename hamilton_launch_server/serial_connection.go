@@ -90,7 +90,7 @@ func sendSerialAbortCommand() {
 }
 
 func logToFile(line string) {
-	f, err := os.OpenFile("commands.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile("commands.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 		return
