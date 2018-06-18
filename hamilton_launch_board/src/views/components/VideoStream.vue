@@ -19,3 +19,10 @@ export default {
   props: ['streamFile']
 }
 </script>
+
+<style scoped>
+img {
+  border: 5px solid white;
+  background-color: black;
+}
+</style>
