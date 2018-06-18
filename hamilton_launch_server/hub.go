@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
 	"encoding/json"
+	"os"
+	"fmt"
 	"log"
 )
 
@@ -31,6 +34,16 @@ func newHub() Hub {
 }
 
 func (h *Hub) sendMsg(msg interface{}) error {
+	f, err := os.OpenFile("data.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	} else {
+		defer f.Close()
+		if _, err = f.WriteString(fmt.Sprintf("[%v]: %v\n", time.Now().UTC(), msg)); err != nil {
+			log.Println(err)
+		}
+	}
+
 	msgBytes, err := json.Marshal(msg)
 	if err != nil {
 		return err

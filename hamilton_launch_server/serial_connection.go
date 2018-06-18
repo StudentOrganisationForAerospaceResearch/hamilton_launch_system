@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -89,7 +90,7 @@ func sendSerialAbortCommand() {
 }
 
 func logToFile(line string) {
-	f, err := os.OpenFile("hamilton_launch_server.log", os.O_APPEND|os.O_WRONLY, 0600)
+	f, err := os.OpenFile("commands.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Println(err)
 		return
@@ -97,7 +98,7 @@ func logToFile(line string) {
 
 	defer f.Close()
 
-	if _, err = f.WriteString(line + "\n"); err != nil {
+	if _, err = f.WriteString(fmt.Sprintf("[%v]: %s\n", time.Now().UTC(), line)); err != nil {
 		log.Println(err)
 		return
 	}
