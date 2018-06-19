@@ -18,7 +18,7 @@
             <v-list-tile-content class="align-end subheading">{{ barometer.temperature }} °C</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
-            <v-list-tile-content class="subheading">Combustion Chamber Pressure</v-list-tile-content>
+            <v-list-tile-content class="subheading">Combustion Pressure</v-list-tile-content>
             <v-list-tile-content class="align-end subheading">{{ combustionChamberPressure.pressure }} psi</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
@@ -106,6 +106,7 @@ export default {
 }
 
 .avionics-card {
+  min-width: 25em;
   width: 30em;
   margin: 9px;
 }
