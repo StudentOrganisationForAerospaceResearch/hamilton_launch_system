@@ -31,6 +31,7 @@
 #define INJECTION_VALVE_IGNITION_OVERLAP_TIME 1000
 #define PURGE_TIME 3000
 #define EJECT_TIME 1000
+#define SECOND_EJECT_DELAY 2000
 
 
 //Load Cell constants
@@ -63,9 +64,16 @@ void arm(){
   digitalWrite(PURGE_RELAY, RELAY_ON);
   delay(PURGE_TIME);
   digitalWrite(PURGE_RELAY, RELAY_OFF);
+
   digitalWrite(EJECT_RELAY, RELAY_ON);
   delay(EJECT_TIME);
   digitalWrite(EJECT_RELAY, RELAY_OFF);
+
+  delay(SECOND_EJECT_DELAY);
+  digitalWrite(EJECT_RELAY, RELAY_ON);
+  delay(EJECT_TIME);
+  digitalWrite(EJECT_RELAY, RELAY_OFF);
+
   digitalWrite(ARM_RELAY, RELAY_ON);
   armed = true;
   Serial.read(); //Read the remaining byte of the command
