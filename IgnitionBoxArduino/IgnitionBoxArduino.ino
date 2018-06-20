@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <Adafruit_ADS1015.h>
+// #include <Adafruit_ADS1015.h>
 
 
 #define RELAY_1    2
@@ -19,15 +19,16 @@
 
 #define ARM_RELAY RELAY_1
 #define FIRE_RELAY RELAY_2
-#define FILL_RELAY RELAY_4
-#define PURGE_RELAY RELAY_3
+#define FILL_RELAY RELAY_3
+#define PURGE_RELAY RELAY_4
 #define EJECT_RELAY RELAY_6
 
 
 #define HEART_BEAT_DELAY 5000
 #define LOAD_CELL_TIME_DELAY 500
 
-#define FIRE_DURATION 10000
+#define FIRE_DURATION 11000
+#define INJECTION_VALVE_IGNITION_OVERLAP_TIME 1000
 #define PURGE_TIME 3000
 #define EJECT_TIME 1000
 
@@ -43,7 +44,7 @@
 
 
 SoftwareSerial umbilical(SERIAL_RX, SERIAL_TX);
-Adafruit_ADS1115 ads;
+// Adafruit_ADS1115 ads;
 
 bool armed = false;
 bool fired  = false;
@@ -75,11 +76,12 @@ void arm(){
 //otherwise the system will ignore this call
 void fire(){
   if(armed){
-    umbilical.write((byte) 0x20);
-    umbilical.write((byte) 0x00);
     digitalWrite(FIRE_RELAY, RELAY_ON);
     fired = true;
     delay(FIRE_DURATION); //Wait for the igniter to get hot
+    umbilical.write((byte) 0x20);
+    umbilical.write((byte) 0x00);
+    delay(INJECTION_VALVE_IGNITION_OVERLAP_TIME); //keep ignition on
     abortCommand(); //Close the relays
   }
   Serial.read(); //Read the remaining byte of the command
@@ -109,7 +111,8 @@ void closeFillValve(){
 void readLoadCell(){
     //Calculate the load Cell packet
     loadTotal-=loadBuffer[loadPtr];
-    loadBuffer[loadPtr] = ads.readADC_Differential_0_1();
+    // loadBuffer[loadPtr] = ads.readADC_Differential_0_1();
+    loadBuffer[loadPtr] = analogRead(A5);
     loadTotal+=loadBuffer[loadPtr];
     loadPtr = (loadPtr+1) % LOAD_CELL_BUFFER_SIZE;
     
@@ -124,6 +127,7 @@ void setup() {
   pinMode(RELAY_4, OUTPUT);
   pinMode(RELAY_5, OUTPUT);
   pinMode(RELAY_6, OUTPUT);
+  pinMode(A5, INPUT);
 
   pinMode(AVIONICS_RESET, INPUT_PULLUP);
   
@@ -138,8 +142,8 @@ void setup() {
   //Set the Arduino Onboard LED to output
   pinMode(LED,OUTPUT);
 
-  ads.setGain(GAIN_ONE);
-  ads.begin();
+  // ads.setGain(GAIN_ONE);
+  // ads.begin();
   
   //Initialize the USB Serial Connection
   Serial.begin(USB_SERIAL_BAUD);
@@ -221,12 +225,16 @@ void loop() {
       
       //Send the loadcell packet
       for(int i=0; i<4; i++) Serial.write(0x40);
-      Serial.write((loadCell>>24) && 0xff); 
-      Serial.write((loadCell>>16) && 0xff);
-      Serial.write((loadCell>>8) && 0xff);
-      Serial.write(loadCell && 0xff);     
+      // Serial.write((loadCell>>24) && 0xff); 
+      // Serial.write((loadCell>>16) && 0xff);
+      // Serial.write((loadCell>>8) && 0xff);
+      // Serial.write(loadCell && 0xff);     
+      Serial.write((loadCell >> 12) & 0xff);
+      Serial.write((loadCell >> 4) & 0xff);
+      Serial.write((loadCell >> 0) & 0x0f);
       Serial.write((byte) 0x00);
-      
+      Serial.write((byte) 0x00);
+
 
     }
     loadTime=millis();
