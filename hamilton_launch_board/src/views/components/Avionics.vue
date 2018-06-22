@@ -26,11 +26,19 @@
             <v-list-tile-content class="align-end subheading">{{ flightPhase.phase }}</v-list-tile-content>
           </v-list-tile>
           <v-list-tile>
-            <v-list-tile-content class="subheading">Last Received</v-list-tile-content>
+            <v-list-tile-content class="subheading">Avionics Last Received</v-list-tile-content>
             <v-list-tile-content
               class="align-end subheading"
-              v-bind:class="{ overtime: lastReceivedSerial.lastReceived > 10 }">
-              {{ lastReceivedSerial.lastReceived }} sec
+              v-bind:class="{ overtime: lastReceivedSerial.avionics > 10 }">
+              {{ lastReceivedSerial.avionics }} sec
+            </v-list-tile-content>
+          </v-list-tile>
+          <v-list-tile>
+            <v-list-tile-content class="subheading">Gnd Stn Last Received</v-list-tile-content>
+            <v-list-tile-content
+              class="align-end subheading"
+              v-bind:class="{ overtime: lastReceivedSerial.groundStation > 10 }">
+              {{ lastReceivedSerial.groundStation }} sec
             </v-list-tile-content>
           </v-list-tile>
         </v-list>

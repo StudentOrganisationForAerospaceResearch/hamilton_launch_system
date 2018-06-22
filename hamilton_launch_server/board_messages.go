@@ -59,5 +59,6 @@ type LoadCellDataMsg struct {
 
 type LastReceivedSerialMsg struct {
 	Type         string  `json:"type"`
-	LastReceived float64 `json:"lastReceived"`
+	Avionics float64 `json:"avionics"`
+	GroundStation float64 `json:"groundStation"`
 }

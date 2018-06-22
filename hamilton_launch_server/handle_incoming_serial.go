@@ -39,34 +39,70 @@ var (
 
 func handleIncomingSerial(hub *Hub) {
 	buf := make([]byte, 128)
-	lastReceived := time.Now()
+	lastReceivedAvionics := time.Now()
+	lastReceivedGroundStation := time.Now()
 
-	for {
-		n, err := serialConn.Read(buf)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+	go func() {
+		for {
+			n, err := avionicsSerialConn.Read(buf)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 
-		for i := 0; i < n; i++ {
-			if handleIncomingSerialByte(buf[i], hub) {
-				lastReceived = time.Now()
+			for i := 0; i < n; i++ {
+				if handleIncomingSerialByte(buf[i], hub) {
+					lastReceivedAvionics = time.Now()
+				}
+			}
+
+			err = hub.sendMsg(LastReceivedSerialMsg{
+				Type:         "lastReceivedSerial",
+				Avionics: time.Now().Sub(lastReceivedAvionics).Seconds(),
+				GroundStation: time.Now().Sub(lastReceivedGroundStation).Seconds(),
+			})
+			if err != nil {
+				log.Println(err)
+				return
 			}
 		}
+	}()
 
-		err = hub.sendMsg(LastReceivedSerialMsg{
-			Type:         "lastReceivedSerial",
-			LastReceived: time.Now().Sub(lastReceived).Seconds(),
-		})
-		if err != nil {
-			log.Println(err)
-			return
+	go func() {
+		for {
+			n, err := gndStnSerialConn.Read(buf)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			for i := 0; i < n; i++ {
+				if handleIncomingSerialByte(buf[i], hub) {
+					lastReceivedGroundStation = time.Now()
+				}
+			}
 		}
-	}
+	}()
+
+	go func() {
+		for {
+			err := hub.sendMsg(LastReceivedSerialMsg{
+				Type:         "lastReceivedSerial",
+				Avionics: time.Now().Sub(lastReceivedAvionics).Seconds(),
+				GroundStation: time.Now().Sub(lastReceivedGroundStation).Seconds(),
+			})
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}		
+	}()
 }
 
 func handleIncomingSerialByte(b byte, hub *Hub) bool {
 	serialBuffer = append(serialBuffer, b)
+
+	// fmt.Println(serialBuffer)
 
 	if serialBuffer[0] != accelGyroMagnetismHeaderByte &&
 		serialBuffer[0] != barometerHeaderByte &&

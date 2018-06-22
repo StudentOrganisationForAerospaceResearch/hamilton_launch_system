@@ -16,8 +16,9 @@ import (
 
 type Config struct {
 	WeatherUpdateInterval string       `yaml:"weather_update_interval"`
+	GndStnPort          string       `yaml:"gnd_stn_port"`
 	AvionicsPort          string       `yaml:"avionics_port"`
-	AvionicsBaudrate      int          `yaml:"avionics_baudrate"`
+	Baudrate      int          `yaml:"baudrate"`
 	Port                  int          `yaml:"port"`
 	Codes                 ControlCodes `yaml:"control_codes"`
 }
@@ -94,10 +95,10 @@ func main() {
 	}
 
 	hub := newHub()
-	setupSerialConnection(config.AvionicsPort, config.AvionicsBaudrate)
+	setupSerialConnections(config.GndStnPort, config.AvionicsPort, config.Baudrate)
 
 	// Send updates
-	go sendWeather(&hub, weatherUpdateInterval)
+	// go sendWeather(&hub, weatherUpdateInterval)
 	go handleIncomingSerial(&hub)
 	go sendFillingInfo(&hub, weatherUpdateInterval)  // use weather interval for now
 	go sendLaunchStatus(&hub, weatherUpdateInterval) // use weather interval for now
