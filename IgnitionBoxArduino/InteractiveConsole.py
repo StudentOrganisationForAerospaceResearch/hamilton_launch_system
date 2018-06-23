@@ -3,8 +3,6 @@ import time
 import binascii
 
 order = 'little'
-
-
 class AvionicsData:
     def __init__(self):
         self.imu = [0] * 9
@@ -39,10 +37,33 @@ def arm(ser):
     time.sleep(1)
     print('Arm Command Sent!\n')
 
+def heartbeat(ser):
+    ser.write(bytearray.fromhex('4600'))
+    time.sleep(1)
+    print('Heartbeat Command Sent!\n')
+
+
+def reset(ser):
+    ser.write(bytearray.fromhex('4F00'))
+    time.sleep(1)
+    print('Reset Command Sent!\n')
+
 def fire(ser):
     ser.write(bytearray.fromhex('2000'))
     time.sleep(1)
     print('Fire Command Sent!\n')
+
+def openInjectionValve(ser):
+    ser.write(bytearray.fromhex('2A00'))
+    time.sleep(1)
+    print('Open Injection Valve Command Sent!\n')
+
+
+def closeInjectionValve(ser):
+    ser.write(bytearray.fromhex('2B00'))
+    time.sleep(1)
+    print('Close Injection Valve Command Sent!\n')
+
 
 def abort(ser):
     ser.write(bytearray.fromhex('2F00'))
@@ -87,7 +108,6 @@ def disconnect(ser):
     ser.close()
     time.sleep(1)
     return None
-
 def quit():
     exit()
 
@@ -166,6 +186,10 @@ if __name__ == "__main__":
         while(ser!=None):
             comm = input("Awaiting command (enter help for list of commands):")
             if(comm == 'arm'): arm(ser)
+            elif(comm == 'heartbeat'): heartbeat(ser)
+            elif(comm == 'reset'): reset(ser)
+            elif(comm == 'openinj'): openInjectionValve(ser)
+            elif(comm == 'closeinj'): closeInjectionValve(ser)
             elif(comm == 'fire'): fire(ser)
             elif(comm == 'abort'): abort(ser)
             elif(comm == 'help'): help()
