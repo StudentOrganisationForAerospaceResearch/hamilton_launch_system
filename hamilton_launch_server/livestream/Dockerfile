@@ -1,6 +1,6 @@
 FROM ubuntu:16.04 AS base
 
-WORKDIR /hamilton_launch_livestream/
+WORKDIR /birthday_sushi_blitz_livestream/
 
 # From https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu
 RUN apt-get update -qq && apt-get -y install \
